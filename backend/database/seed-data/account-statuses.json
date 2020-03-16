@@ -1,0 +1,6 @@
+[
+    {"status" : "Open"}, 
+    {"status" : "Frozen"}, 
+    {"status" : "Suspended"}, 
+    {"status" : "Deleted by User"}
+]
