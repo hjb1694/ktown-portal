@@ -1,0 +1,8 @@
+[
+    {"role" : "Administrator"}, 
+    {"role" : "Staff"}, 
+    {"role" : "Gold Moderator"}, 
+    {"role" : "Silver Moderator"}, 
+    {"role" : "Bronze Moderator"}, 
+    {"role" : "User"}
+]
