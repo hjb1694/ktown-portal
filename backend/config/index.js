@@ -24,5 +24,11 @@ module.exports = {
             client : process.env.DB_TEST_CLIENT || 'pg'
         }
     }, 
-    jwt_secret : process.env.JWT_SECRET || 'secret'
+    jwt_secret : process.env.JWT_SECRET || 'secret', 
+    nodemailer : {
+        host : process.env.NODEMAILER_HOST || 'smtp.ethereal.email', 
+        port :  process.env.NODEMAILER_PORT || 587, 
+        user : process.env.NODEMAILER_USER, 
+        pass : process.env.NODEMAILER_PASS
+    }
 }

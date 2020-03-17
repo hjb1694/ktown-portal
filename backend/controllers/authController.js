@@ -6,6 +6,7 @@ const {
     sanitizeTextField, 
     signToken
 } = require('../utils/helpers');
+const sendEmail = require('../utils/sendEmail');
 
 exports.register = async (req,res) => {
 
@@ -39,14 +40,22 @@ exports.register = async (req,res) => {
 
         const token = signToken(userId, false);
 
+        await sendEmail({
+            from : '"NO_REPLY" <no-reply@ktown-portal.com>',
+            recipientEmail : 'hbradfield20@gmail.com', //Modify Later
+            subject : 'Please verify your account', 
+            msg : `
+            <p><strong>Please use the verification code below</strong></p>
+            <p>${vericode}</p>
+            ` //Modify Later
+        });
+
         res.status(201).json({
             status : 'created',
             data : {
                 token
             }
         });
-
-        
 
 
     }catch(e){
