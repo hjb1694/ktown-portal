@@ -28,6 +28,22 @@ const userQueries = {
         }
 
 
+    }, 
+    async getLoginCredentials(email){
+
+        try{
+
+        const result = await knex.column('id', 'password', 'isVerified').from('users').where({email}).select();
+
+        return result;
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to gather credentials');
+        }
+
+
+
     }
 }
 

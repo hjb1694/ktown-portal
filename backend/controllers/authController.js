@@ -1,12 +1,22 @@
 const {validationResult} = require('express-validator');
 const bcrypt = require('bcryptjs');
 const uuid = require('uuid').v4;
-const {insertNewUser} = require('../database/queries/user');
+const {
+    insertNewUser, 
+    getLoginCredentials
+} = require('../database/queries/user');
 const {
     sanitizeTextField, 
     signToken
 } = require('../utils/helpers');
 const sendEmail = require('../utils/sendEmail');
+
+
+/*
+REGISTER CONTROLLER
+POST /api/v1/auth/register
+--Public--
+*/
 
 exports.register = async (req,res) => {
 
@@ -68,3 +78,55 @@ exports.register = async (req,res) => {
         });
     }
 } 
+
+
+/*
+LOGIN CONTROLLER 
+POST /api/v1/auth/login
+--Public--
+*/
+
+exports.login = async (req,res) => {
+
+    const {email, password} = req.body;
+
+    try{
+
+        const result = await getLoginCredentials(email);
+
+        if(!result.length)
+            return res.status(403).json({
+                status : 'error', 
+                data : {
+                    msg : 'The credentials you entered are invalid or this account does not exist.'
+                }
+            });
+
+        const {hashedPassword, isVerified} = result[0];
+
+        const match = await bcrypt.compare(password, hashedPassword);
+
+        if(!match)
+            return res.status(403).json({
+                status : 'error',
+                data : {
+                    msg : 'The credentials you entered are invalid or this account does not exist.'
+                }
+            });
+
+
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error', 
+            data : {
+                msg : 'A server error has occurred.'
+            }
+        });
+
+    }
+
+
+
+}
