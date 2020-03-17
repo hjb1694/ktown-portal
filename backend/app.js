@@ -11,3 +11,5 @@ app.use('/api/v1/auth', require('./routes/auth'));
 
 
 app.listen(config.port, () => console.log(`Listening on port ${config.port}`));
+
+module.exports = app;
