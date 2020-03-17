@@ -13,6 +13,21 @@ const userQueries = {
         const result = await knex.count('*').from('users').where({email});
 
         return result;
+    }, 
+    async insertNewUser(userObj){
+
+        try{
+
+        const result = await knex('users').insert(userObj).returning('id');
+
+        return result;
+
+        }catch(e){
+            console.log(e);
+             throw new Error('User insert failed.');
+        }
+
+
     }
 }
 

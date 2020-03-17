@@ -1,5 +1,7 @@
+const config = require('../config');
 const sanitizer = require('sanitize-html');
 const HtmlEntities = require('html-entities').AllHtmlEntities;
+const jtw = require('jsonwebtoken');
 htmlEntities = new HtmlEntities();
 
 const helpers = {
@@ -17,6 +19,17 @@ const helpers = {
     }, 
     sanitizeTextField(value){
         return helpers.stripExcessWhitespaceTextField(helpers.stripTags(helpers.htmlEntitiesDecode(value))).trim();
+    }, 
+    signToken(userId, isVerified){
+
+        return jtw.sign({
+            userId, 
+            isVerified
+        }, config.jwt_secret, {
+            expiresIn : '1 hour'
+        });
+        
+
     }
 }
 

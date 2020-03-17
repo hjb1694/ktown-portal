@@ -23,5 +23,6 @@ module.exports = {
             dbName : process.env.DB_TEST_NAME || 'ktowntest', 
             client : process.env.DB_TEST_CLIENT || 'pg'
         }
-    }
+    }, 
+    jwt_secret : process.env.JWT_SECRET || 'secret'
 }

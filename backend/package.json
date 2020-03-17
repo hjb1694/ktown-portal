@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.6",
@@ -21,8 +22,10 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.20.11",
     "moment": "^2.24.0",
+    "nodemailer": "^6.4.5",
     "pg": "^7.18.2",
-    "sanitize-html": "^1.22.1"
+    "sanitize-html": "^1.22.1",
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
     "jest": "^25.1.0",
