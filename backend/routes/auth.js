@@ -1,10 +1,8 @@
 const router = require('express').Router();
+const registerValidation = require('../middleware/validation/registerValidation');
+const authController = require('../controllers/authController');
 
-router.post('/register', (req,res) => {
-
-    res.send('register route');
-
-});
+router.post('/register', registerValidation, authController.register);
 
 
 
