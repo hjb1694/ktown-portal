@@ -33,7 +33,8 @@ const userQueries = {
 
         try{
 
-        const result = await knex.column('id', 'password', 'isVerified').from('users').where({email}).select();
+        const result = await knex.column('id', 'password', 'isVerified', 'account_status', 'username')
+        .from('users').where({email}).select();
 
         return result;
 
@@ -43,7 +44,7 @@ const userQueries = {
         }
 
     },
-    async resetPassword(userId, newPassword){
+    async changePassword(userId, newPassword){
 
         try{
 
@@ -52,8 +53,23 @@ const userQueries = {
 
         }catch(e){
             console.log(e);
-            throw new Error('Server failed to reset password.');
+            throw new Error('Server failed to change password.');
         }
+
+    }, 
+    async insertAccountSettings(userId){
+
+        try{
+
+            await knex('account_settings').insert({userId});
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to insert account settings.');
+        }
+
+
 
     }
 }

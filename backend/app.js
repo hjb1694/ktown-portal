@@ -8,6 +8,7 @@ app.use(fileupload());
 
 //Routes
 app.use('/api/v1/auth', require('./routes/auth'));
+app.use('/api/v1/account', require('./routes/account'));
 
 
 app.listen(config.port, () => console.log(`Listening on port ${config.port}`));

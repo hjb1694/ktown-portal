@@ -4,7 +4,8 @@ const uuid = require('uuid').v4;
 const {
     insertNewUser, 
     getLoginCredentials, 
-    resetPassword
+    resetPassword, 
+    insertAccountSettings
 } = require('../database/queries/user');
 const {
     sanitizeTextField, 
@@ -48,6 +49,8 @@ exports.register = async (req,res) => {
         });
 
         const userId = result[0];
+
+        await insertAccountSettings(userId);
 
         const token = signToken(userId, false);
 
@@ -103,7 +106,13 @@ exports.login = async (req,res) => {
                 }
             });
 
-        const {id : userId, password : hashedPassword, isVerified} = result[0];
+        const {
+            id : userId, 
+            password : hashedPassword, 
+            isVerified, 
+            account_status : accountStatus, 
+            username
+        } = result[0];
 
         const match = await bcrypt.compare(password, hashedPassword);
 
@@ -112,6 +121,14 @@ exports.login = async (req,res) => {
                 status : 'error',
                 data : {
                     msg : 'The credentials you entered are invalid or this account does not exist.'
+                }
+            });
+
+        if(accountStatus > 2)
+            return res.status(403).json({
+                status : 'error', 
+                data : {
+                    msg : `${username} is no longer a registered user.`
                 }
             });
 
@@ -155,30 +172,34 @@ exports.resetPassword = async (req,res) => {
 
         if(result.length){
 
-            const {id : userId} = result[0];
+            const {id : userId, account_status : accountStatus} = result[0];
 
-            let newPass = uuid().substring(0,8);
+            if(accountStatus < 3){
 
-            newPass = bcrypt.hash(newPass, 8);
+                const newPass = uuid().substring(0,8);
 
-            await resetPassword(userId, newPass);
+                const newPassHashed = await bcrypt.hash(newPass, 8);
 
-            await sendEmail({
-                from : '"NO_REPLY" <no-reply@ktown-portal.com>',
-                recipientEmail : email,
-                subject : 'Your new password with instructions', 
-                msg : `
-                <p><strong>Please use the verification code below</strong></p>
-                <p>${newPass}</p>
-                ` //Modify Later
-            });
+                await changePassword(userId, newPassHashed);
+
+                await sendEmail({
+                    from : '"NO_REPLY" <no-reply@ktown-portal.com>',
+                    recipientEmail : email,
+                    subject : 'Your new password with instructions', 
+                    msg : `
+                    <p><strong>Please use the verification code below</strong></p>
+                    <p>${newPass}</p>
+                    ` //Modify Later
+                });
+
+            }
 
         }
 
         res.status(200).json({
             status : 'ok', 
             data : {
-                msg : 'A new password has been created and sent to your email address.'
+                msg : 'If your email address exists in our records, a new password has been created and sent to your email.'
             }
         });
 
