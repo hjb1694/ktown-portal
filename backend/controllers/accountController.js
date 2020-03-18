@@ -42,3 +42,10 @@ exports.changePassword = async (req,res) => {
     }
 
 }
+
+exports.blockUnblockUser = async (req,res) => {
+
+    res.send('Block Unblock User Route');
+
+
+}

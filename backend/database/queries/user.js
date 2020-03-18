@@ -70,7 +70,7 @@ const userQueries = {
         }
 
     }, 
-    async insertProfileInfo(){
+    async insertProfileInfo(userId){
 
         try{
 
@@ -82,6 +82,21 @@ const userQueries = {
             throw new Error('Server failed to insert profile info.');
         }
 
+
+    },
+    async checkAccountStatus(userId){
+
+        try{
+
+            const result = await knex.column('account_status', 'username').from('users').where({id : userId}).select();
+
+            return result;
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to check user\'s account status.');
+        }
 
     }
 }
