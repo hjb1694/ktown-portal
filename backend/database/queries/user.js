@@ -69,6 +69,18 @@ const userQueries = {
             throw new Error('Server failed to insert account settings.');
         }
 
+    }, 
+    async insertProfileInfo(){
+
+        try{
+
+            await knex('profile_info').insert({userId});
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to insert profile info.');
+        }
 
 
     }

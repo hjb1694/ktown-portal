@@ -5,7 +5,8 @@ const {
     insertNewUser, 
     getLoginCredentials, 
     resetPassword, 
-    insertAccountSettings
+    insertAccountSettings, 
+    insertProfileInfo
 } = require('../database/queries/user');
 const {
     sanitizeTextField, 
@@ -51,6 +52,7 @@ exports.register = async (req,res) => {
         const userId = result[0];
 
         await insertAccountSettings(userId);
+        await insertProfileInfo(userId);
 
         const token = signToken(userId, false);
 
