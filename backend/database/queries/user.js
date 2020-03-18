@@ -42,7 +42,18 @@ const userQueries = {
             throw new Error('Server failed to gather credentials');
         }
 
+    },
+    async resetPassword(userId, newPassword){
 
+        try{
+
+        await knex('users').update({password : newPassword}).where({id : userId});
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to reset password.');
+        }
 
     }
 }
