@@ -8,10 +8,12 @@ const checkIfUserFrozen = require('../middleware/checkIfUserFrozen');
 const validateBlockUnblockUser = require('../middleware/validation/validateBlockUnblockUser');
 const accountIsVerified = require('../middleware/accountVerified');
 const validateFollowToggle = require('../middleware/validation/validateFollowToggle');
+const generalAccountTypeOnly = require('../middleware/generalAccountTypeOnly');
 
 router.post(
     '/changePassword', 
     tokenIsSet, 
+    generalAccountTypeOnly,
     obtainAccountStatus, 
     checkIfUserRemoved, 
     newPasswordValidation, 
@@ -20,6 +22,7 @@ router.post(
 router.post(
     '/blockUnblockUser', 
     tokenIsSet, 
+    generalAccountTypeOnly,
     obtainAccountStatus, 
     checkIfUserRemoved, 
     checkIfUserFrozen,
@@ -30,6 +33,7 @@ router.post(
 router.post(
     '/followUnfollowUser', 
     tokenIsSet, 
+    generalAccountTypeOnly,
     obtainAccountStatus, 
     checkIfUserRemoved, 
     checkIfUserFrozen, 

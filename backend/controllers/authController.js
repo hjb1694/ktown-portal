@@ -69,7 +69,8 @@ exports.register = async (req,res) => {
         res.status(201).json({
             status : 'created',
             data : {
-                token
+                token, 
+                accountType : 'general'
             }
         });
 
@@ -139,7 +140,8 @@ exports.login = async (req,res) => {
         res.status(200).json({
             status : 'success', 
             data : {
-                token
+                token, 
+                accountType : 'general'
             }
         });
 

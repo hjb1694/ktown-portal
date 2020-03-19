@@ -30,6 +30,7 @@ module.exports = (req,res,next) => {
 
         req.userId = result.userId;
         req.isVerified = result.isVerified;
+        req.accountType = result.accountType;
 
         next();
         
