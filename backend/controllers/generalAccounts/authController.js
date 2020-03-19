@@ -7,12 +7,12 @@ const {
     resetPassword, 
     insertAccountSettings, 
     insertProfileInfo
-} = require('../database/queries/user');
+} = require('../../database/queries/user');
 const {
     sanitizeTextField, 
     signToken
-} = require('../utils/helpers');
-const sendEmail = require('../utils/sendEmail');
+} = require('../../utils/helpers');
+const sendEmail = require('../../utils/sendEmail');
 
 
 /*
