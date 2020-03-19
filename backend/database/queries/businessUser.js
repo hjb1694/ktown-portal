@@ -15,5 +15,18 @@ const businessUserQueries = {
             throw new Error('Server failed to gather credentials');
         }
 
+    }, 
+    async changePassword(userId, newPassword){
+
+        try{
+
+        await knex('business_accounts').update({password : newPassword}).where({id : userId});
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to change password.');
+        }
+
     }
 }
