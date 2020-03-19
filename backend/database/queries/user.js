@@ -162,6 +162,94 @@ const userQueries = {
             throw new Error('Server failed to block or unblock user.');
         }
 
+    }, 
+    async checkIfBlocked(user1, user2){
+
+        try{
+
+            const result = await knex.count('*').from('blocked_users').where({
+                blocking_user_id : user1, 
+                blocked_user_id : user2
+            }).orWhere({
+                blocking_user_id : user2, 
+                blocked_user_id : user1
+            });
+
+            return result;
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Failed to fetch from database.');
+        }
+
+
+    }, 
+    async followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollowId, action){
+
+        try{
+
+            const result = await knex.count('*').from('followers').where({
+                follower_user_id : userFollowingUnfollowingId, 
+                following_user_id : userToFollowUnfollowId
+            }).select();
+
+            if(action === 'follow'){
+
+                if(+result[0].count === 0){
+
+                    await knex('followers').insert({
+                        follower_user_id : userFollowingUnfollowingId, 
+                        following_user_id : userToFollowUnfollowId
+                    });
+
+                    return true;
+
+                }else{
+                    return false;
+                }
+    
+            }else if(action === 'unfollow'){
+    
+                if(+result[0].count === 1){
+
+                    await knex('followers').where({
+                        follower_user_id : userFollowingUnfollowingId, 
+                        following_user_id : userToFollowUnfollowId
+                    }).del();
+
+                    return true;
+
+                }else{
+                    return false;
+                }
+    
+            }
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to follow or unfollow user.');
+        }
+
+    }, 
+    async UnfollowFromBlock(user1, user2){
+
+        try{
+
+            await knex('followers').where({
+                follower_user_id : user1, 
+                following_user_id : user2
+            }).orWhere({
+                follower_user_id : user2, 
+                following_user_id : user1
+            }).del();
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to unfollow users.');
+        }
+
     }
 }
 

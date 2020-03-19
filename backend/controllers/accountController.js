@@ -1,9 +1,17 @@
 const {validationResult} = require('express-validator');
 const {
     changePassword,
-    blockUnblockUser
+    blockUnblockUser, 
+    followUnfollowUser, 
+    UnfollowFromBlock
 } = require('../database/queries/user');
 const bcrypt = require('bcryptjs');
+
+/*
+CHANGE PASSWORD CONTROLLER
+POST /api/v1/account/changePassword
+--private--
+*/
 
 exports.changePassword = async (req,res) => {
 
@@ -46,6 +54,12 @@ exports.changePassword = async (req,res) => {
 
 }
 
+/*
+TOGGLE BLOCK USER CONTROLLER
+POST /api/v1/account/blockUnblockUser
+--private--
+*/
+
 exports.blockUnblockUser = async (req,res) => {
 
     const errors = validationResult(req);
@@ -65,8 +79,9 @@ exports.blockUnblockUser = async (req,res) => {
 
         const result = await blockUnblockUser(blockingUser, blockedUser, action);
 
-        let statusCode, status, msg; 
+        if(action === 'block') await UnfollowFromBlock(blockingUser, blockedUser);
 
+        let statusCode, status, msg; 
 
         if(result){
             statusCode = 201;
@@ -97,7 +112,63 @@ exports.blockUnblockUser = async (req,res) => {
         });
     }
 
+}
 
+/*
+TOGGLE FOLLOW USER CONTROLLER
+POST /api/v1/account/followUnfollowUser
+--private--
+*/
 
+exports.followUnfollowUser = async (req,res) => {
+
+    const errors = validationResult(req);
+
+    if(!errors.isEmpty())
+        return res.status(422).json({
+            status : 'error', 
+            data : {
+                errors : errors.array()
+            }
+        });
+
+        const userFollowingUnfollowingId = req.userId;
+        const {userToFollowUnfollow, action} = req.body;
+    
+        try{
+    
+            const result = await followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollow, action);
+    
+            let statusCode, status, msg; 
+    
+    
+            if(result){
+                statusCode = 201;
+                status = 'success';
+                msg = action === 'follow' ? 'Now following user' : 'Now unfollowing user';
+            }else{
+                statusCode = 422;
+                status = 'error';
+                msg = action === 'follow' ? 'Already following user' : 'Cannot unfollow a user that has not been followed';
+            }
+    
+            res.status(statusCode).json({
+                status, 
+                data : {
+                    msg
+                }
+            });
+    
+    
+        }catch(e){
+    
+            console.log(e);
+            res.status(500).json({
+                status : 'error',
+                data : {
+                    msg : 'A server error has occurred'
+                }
+            });
+        }
 
 }

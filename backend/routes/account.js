@@ -7,6 +7,7 @@ const checkIfUserRemoved = require('../middleware/checkIfUserRemoved');
 const checkIfUserFrozen = require('../middleware/checkIfUserFrozen');
 const validateBlockUnblockUser = require('../middleware/validation/validateBlockUnblockUser');
 const accountIsVerified = require('../middleware/accountVerified');
+const validateFollowToggle = require('../middleware/validation/validateFollowToggle');
 
 router.post(
     '/changePassword', 
@@ -25,6 +26,16 @@ router.post(
     accountIsVerified,
     validateBlockUnblockUser,
     accountController.blockUnblockUser);
+
+router.post(
+    '/followUnfollowUser', 
+    tokenIsSet, 
+    obtainAccountStatus, 
+    checkIfUserRemoved, 
+    checkIfUserFrozen, 
+    accountIsVerified,
+    validateFollowToggle,
+    accountController.followUnfollowUser);
 
 
 module.exports = router;
