@@ -6,9 +6,13 @@ const app = express();
 app.use(express.json());
 app.use(fileupload());
 
-//Routes
+//=======Routes===========
+//General Account
 app.use('/api/v1/auth', require('./routes/generalAccount/generalAcctAuth'));
 app.use('/api/v1/account', require('./routes/generalAccount/generalAccount'));
+//Business Account
+app.use('/api/v1/business/auth', require('./routes/businessAccount/businessAcctAuth'));
+//Shared
 
 
 app.listen(config.port, () => console.log(`Listening on port ${config.port}`));
