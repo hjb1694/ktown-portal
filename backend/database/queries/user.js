@@ -98,6 +98,70 @@ const userQueries = {
             throw new Error('Server failed to check user\'s account status.');
         }
 
+    }, 
+    async getUserRoleAndAccountStatusById(userId){
+
+        try{
+
+            const result = await knex.column('role','account_status AS accountStatus')
+            .from('users').where({id : userId}).select();
+
+            return result;
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to obtain information from database.');
+        }
+
+    },
+    async blockUnblockUser(blockingUserId, blockedUserId, action){
+
+        try{
+
+            const result = await knex.count('*').from('blocked_users').where({
+                blocking_user_id : blockingUserId, 
+                blocked_user_id : blockedUserId
+            }).select();
+
+            if(action === 'block'){
+
+                if(+result[0].count === 0){
+
+                    await knex('blocked_users').insert({
+                        blocking_user_id : blockingUserId, 
+                        blocked_user_id : blockedUserId
+                    });
+
+                    return true;
+
+                }else{
+                    return false;
+                }
+    
+            }else if(action === 'unblock'){
+    
+                if(+result[0].count === 1){
+
+                    await knex('blocked_users').where({
+                        blocking_user_id : blockingUserId, 
+                        blocked_user_id : blockedUserId
+                    }).del();
+
+                    return true;
+
+                }else{
+                    return false;
+                }
+    
+            }
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to block or unblock user.');
+        }
+
     }
 }
 

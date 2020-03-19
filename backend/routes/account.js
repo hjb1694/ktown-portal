@@ -5,6 +5,8 @@ const newPasswordValidation = require('../middleware/validation/newPasswordValid
 const obtainAccountStatus = require('../middleware/obtainAccountStatus');
 const checkIfUserRemoved = require('../middleware/checkIfUserRemoved');
 const checkIfUserFrozen = require('../middleware/checkIfUserFrozen');
+const validateBlockUnblockUser = require('../middleware/validation/validateBlockUnblockUser');
+const accountIsVerified = require('../middleware/accountVerified');
 
 router.post(
     '/changePassword', 
@@ -20,6 +22,8 @@ router.post(
     obtainAccountStatus, 
     checkIfUserRemoved, 
     checkIfUserFrozen,
+    accountIsVerified,
+    validateBlockUnblockUser,
     accountController.blockUnblockUser);
 
 
