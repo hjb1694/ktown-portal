@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const tokenIsSet = require('../middleware/tokenIsSet');
-const accountController = require('../controllers/accountController');
+const accountController = require('../controllers/generalAccounts/accountController');
 const newPasswordValidation = require('../middleware/validation/newPasswordValidation');
 const obtainAccountStatus = require('../middleware/obtainAccountStatus');
 const checkIfUserRemoved = require('../middleware/checkIfUserRemoved');
