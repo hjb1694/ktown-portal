@@ -28,5 +28,20 @@ const businessUserQueries = {
             throw new Error('Server failed to change password.');
         }
 
+    }, 
+    async checkAccountStatus(userId){
+
+        try{
+
+            const result = await knex.column('account_status AS accountStatus', 'name').from('business_accounts').where({id : userId}).select();
+
+            return result;
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to check user\'s account status.');
+        }
+
     }
 }

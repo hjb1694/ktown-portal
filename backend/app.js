@@ -12,6 +12,7 @@ app.use('/api/v1/auth', require('./routes/generalAccount/generalAcctAuth'));
 app.use('/api/v1/account', require('./routes/generalAccount/generalAccount'));
 //Business Account
 app.use('/api/v1/business/auth', require('./routes/businessAccount/businessAcctAuth'));
+app.use('/api/v1/business/profile', require('./routes/businessAccount/businessProfile'));
 //Shared
 
 
