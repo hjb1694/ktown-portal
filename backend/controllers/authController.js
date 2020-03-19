@@ -54,7 +54,7 @@ exports.register = async (req,res) => {
         await insertAccountSettings(userId);
         await insertProfileInfo(userId);
 
-        const token = signToken(userId, false);
+        const token = signToken(userId, false, 'general');
 
         await sendEmail({
             from : '"NO_REPLY" <no-reply@ktown-portal.com>',
@@ -134,7 +134,7 @@ exports.login = async (req,res) => {
                 }
             });
 
-        const token = await signToken(userId, isVerified);
+        const token = await signToken(userId, isVerified, 'general');
 
         res.status(200).json({
             status : 'success', 

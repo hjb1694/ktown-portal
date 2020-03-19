@@ -20,11 +20,12 @@ const helpers = {
     sanitizeTextField(value){
         return helpers.stripExcessWhitespaceTextField(helpers.stripTags(helpers.htmlEntitiesDecode(value))).trim();
     }, 
-    signToken(userId, isVerified){
+    signToken(userId, isVerified, accountType){
 
         return jtw.sign({
             userId, 
-            isVerified
+            isVerified, 
+            accountType
         }, config.jwt_secret, {
             expiresIn : '1 hour'
         });
