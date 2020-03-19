@@ -1,4 +1,4 @@
-const knex = require('./');
+const knex = require('../');
 
 const businessUserQueries = {
     async getLoginCredentials(email){

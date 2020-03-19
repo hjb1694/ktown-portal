@@ -4,7 +4,7 @@ const {
     blockUnblockUser, 
     followUnfollowUser, 
     UnfollowFromBlock
-} = require('../database/queries/user');
+} = require('../../database/queries/user');
 const bcrypt = require('bcryptjs');
 
 /*
