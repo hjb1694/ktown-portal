@@ -7,7 +7,7 @@ exports.up = function(knex) {
       table.string('headline', 50).notNullable();
       table.text('details');
       table.integer('posting_status').notNullable()
-      .references('id').inTable('posting_statuses');
+      .references('id').inTable('posting_statuses').defaultsTo(1);
       table.timestamps();
   });
 };
