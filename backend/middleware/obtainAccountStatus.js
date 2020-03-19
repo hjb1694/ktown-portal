@@ -7,18 +7,23 @@ module.exports = async (req,res,next) => {
     const accountType = req.accountType;
 
     let result;
+    let accountStatus;
+    let accountName;
 
     if(userId && accountType === 'general'){
 
         result = await checkAccountStatusGeneralUser(userId);
 
-        const {accountStatus, username : accountName} = result[0];
+        accountStatus = result[0].accountStatus;
+        accountName = result[0].username;
+
 
     }else if(userId && accountType === 'business'){
 
         result = await checkAccountStatusBusinessUser(userId);
 
-        const {accountStatus, name : accountName} = result[0];
+        accountStatus = result[0].accountStatus;
+        accountName = result[0].name;
 
     }else{
 
