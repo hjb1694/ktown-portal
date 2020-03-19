@@ -7,8 +7,8 @@ app.use(express.json());
 app.use(fileupload());
 
 //Routes
-app.use('/api/v1/auth', require('./routes/generalAcctAuth'));
-app.use('/api/v1/account', require('./routes/generalAccount'));
+app.use('/api/v1/auth', require('./routes/generalAccount/generalAcctAuth'));
+app.use('/api/v1/account', require('./routes/generalAccount/generalAccount'));
 
 
 app.listen(config.port, () => console.log(`Listening on port ${config.port}`));
