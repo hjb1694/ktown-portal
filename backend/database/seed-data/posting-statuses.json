@@ -1,0 +1,6 @@
+[
+    {"status" : "Viewable"},
+    {"status" : "Hidden (for review)"}, 
+    {"status" : "Removed by Staff or Admin"}, 
+    {"status" : "Removed by Author"}
+]
