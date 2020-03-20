@@ -9,8 +9,6 @@ const validateBlockUnblockUser = require('../../middleware/validation/validateBl
 const accountIsVerified = require('../../middleware/accountVerified');
 const validateFollowToggle = require('../../middleware/validation/validateFollowToggle');
 const generalAccountTypeOnly = require('../../middleware/generalAccountTypeOnly');
-const {checkIfBlocked} = require('../../database/queries/user');
-const {validationResult} = require('express-validator');
 
 router.post(
     '/changePassword', 

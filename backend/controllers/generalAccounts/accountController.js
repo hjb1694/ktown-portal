@@ -8,7 +8,8 @@ const {
     checkIfFollowRequestExists, 
     insertFollowRequest, 
     removeFollowRequest, 
-    removeFollowRequestsFromBlock
+    removeFollowRequestsFromBlock, 
+    checkIfBlocked
 } = require('../../database/queries/user');
 const bcrypt = require('bcryptjs');
 
