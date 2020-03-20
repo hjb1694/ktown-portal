@@ -43,5 +43,24 @@ const businessUserQueries = {
             throw new Error('Server failed to check user\'s account status.');
         }
 
+    },  
+    async getBusinessListingsByUserId(userId){
+
+        try{
+
+            const result = knex.column('business_listing_id').from('biz_listings_to_biz_accts')
+            .where({business_acct_id : userId}).select();
+
+            return result;
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to fetch business IDs');
+        }
+
+
     }
 }
+
+module.exports = businessUserQueries;

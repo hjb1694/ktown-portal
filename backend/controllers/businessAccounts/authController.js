@@ -52,7 +52,7 @@ exports.login = async (req,res) => {
                 }
             });
 
-        const token = await signToken(userId, null, 'general');
+        const token = await signToken(userId, null, 'business');
 
         res.status(200).json({
             status : 'success', 

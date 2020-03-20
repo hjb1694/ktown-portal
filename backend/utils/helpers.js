@@ -15,11 +15,17 @@ const helpers = {
         return htmlEntities.decode(value);
     }, 
     stripExcessWhitespaceTextField(value){
-        return value.replace(/ {2,}/g, ' ').replace(/\n+/g, ' ');
+        return value.replace(/ {2,}/g, ' ').replace(/\t+/gm, ' ').replace(/\n+/gm, ' ');
     }, 
+    stripExcessWhitespaceTextArea(value){
+        return value.replace(/ {2,}/gm, ' ').replace(/\t+/gm, ' ').replace(/\n{3,}/gm, '\n\n');
+    },
     sanitizeTextField(value){
         return helpers.stripExcessWhitespaceTextField(helpers.stripTags(helpers.htmlEntitiesDecode(value))).trim();
     }, 
+    sanitizeTextArea(value){
+        return helpers.stripExcessWhitespaceTextArea(helpers.stripTags(helpers.htmlEntitiesDecode(value))).trim();
+    },
     signToken(userId, isVerified, accountType){
 
         return jtw.sign({
