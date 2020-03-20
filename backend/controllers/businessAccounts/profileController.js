@@ -1,6 +1,9 @@
 const {validationResult} = require('express-validator');
+const {
+    insertAnnouncement
+} = require('../../database/queries/businessProfile');
 
-exports.insertAnnouncement = (req,res) => {
+exports.insertAnnouncement = async (req,res) => {
 
     const errors = validationResult(req);
 
@@ -12,7 +15,31 @@ exports.insertAnnouncement = (req,res) => {
             }
         });
 
-    res.send('insert announcement controller');
+    const {businessListingId, headline, details} = req.body;
 
+    try{
+
+        await insertAnnouncement({
+            listingId : businessListingId, 
+            headline, 
+            details
+        });
+
+        res.status(201).json({
+            status : 'success', 
+            data : {
+                msg  : 'Announcement Created!'
+            }
+        });
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error', 
+            data : {
+                msg : 'A server error has occurred.'
+            }
+        });
+    }
 
 }
