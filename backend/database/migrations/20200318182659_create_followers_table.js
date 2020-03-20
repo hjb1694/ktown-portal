@@ -4,7 +4,7 @@ exports.up = function(knex) {
     table.increments('id');
     table.bigInteger('follower_user_id').unsigned().notNullable()
     .references('id').inTable('users');
-    table.bigInteger('following_user_id').unsigned().notNullable()
+    table.bigInteger('followed_user_id').unsigned().notNullable()
     .references('id').inTable('users');
   });
 };

@@ -1,15 +1,13 @@
 const {validationResult} = require('express-validator');
 const {
-    changePassword,
-    blockUnblockUser, 
-    followUnfollowUser, 
-    UnfollowFromBlock, 
-    fetchUserSettingsById, 
-    checkIfFollowRequestExists, 
-    insertFollowRequest, 
-    removeFollowRequest, 
-    removeFollowRequestsFromBlock, 
-    checkIfBlocked
+    changePassword, 
+    checkIfBlocked, 
+    checkIfBlockedReflexive,
+    insertBlockedUser, 
+    unblockUser, 
+    UnfollowResultingFromBlock, 
+    checkIfFollowRequestSubmitted,
+    insertFollowRequest
 } = require('../../database/queries/user');
 const bcrypt = require('bcryptjs');
 
@@ -61,12 +59,12 @@ exports.changePassword = async (req,res) => {
 }
 
 /*
-TOGGLE BLOCK USER CONTROLLER
-POST /api/v1/account/blockUnblockUser
+BLOCK USER CONTROLLER
+POST /api/v1/account/blockUser
 --private--
 */
 
-exports.blockUnblockUser = async (req,res) => {
+exports.blockUser = async (req,res) => {
 
     const errors = validationResult(req);
 
@@ -78,40 +76,31 @@ exports.blockUnblockUser = async (req,res) => {
             }
         });
 
-    const blockingUser = req.userId;
-    const {blockedUser, action} = req.body;
+    const blockerUserId = req.userId;
+    const {userId : blockedUserId} = req.body;
 
     try{
 
-        const result = await blockUnblockUser(blockingUser, blockedUser, action);
+        const blocked = await checkIfBlocked(blockerUserId, blockedUserId);
 
-        if(action === 'block') { 
-            await UnfollowFromBlock(blockingUser, blockedUser); 
-            await removeFollowRequestsFromBlock(blockingUser, blockedUser);
-        }
+        if(blocked)
+            return res.status(422).json({
+                status : 'error', 
+                msg : 'You have already blocked this user!'
+            });
 
-        let statusCode, status, msg; 
+        
+        await insertBlockedUser(blockerUserId, blockedUserId);
+        await UnfollowResultingFromBlock(blockerUserId, blockedUserId);
 
-        if(result){
-            statusCode = 201;
-            status = 'success';
-            msg = action === 'block' ? 'User blocked' : 'User unblocked';
-        }else{
-            statusCode = 422;
-            status = 'error';
-            msg = action === 'block' ? 'User already blocked' : 'Cannot unblock a user that has not been blocked';
-        }
-
-        res.status(statusCode).json({
-            status, 
+        res.status(201).json({
+            status : 'success',
             data : {
-                msg
+                msg : 'This user is now blocked!'
             }
-        });
-
+        });   
 
     }catch(e){
-
         console.log(e);
         res.status(500).json({
             status : 'error',
@@ -124,15 +113,67 @@ exports.blockUnblockUser = async (req,res) => {
 }
 
 /*
-TOGGLE FOLLOW USER CONTROLLER
-POST /api/v1/account/followUnfollowUser
+UNBLOCK USER CONTROLLER
+POST /api/v1/account/unblockUser
 --private--
 */
 
-exports.followUnfollowUser = async (req,res) => {
 
-    const userFollowingUnfollowingId = req.userId;
-    const {userToFollowUnfollow, action} = req.body;
+exports.unblockUser = async (req,res) => {
+
+    const errors = validationResult(req);
+
+    if(!errors.isEmpty())
+        return res.status(422).json({
+            status : 'error', 
+            data : {
+                errors : errors.array()
+            }
+        });
+
+    const unblockerUserId = req.userId;
+    const {userId : unblockedUserId} = req.body;
+
+    try{   
+        
+        const blocked = await checkIfBlocked(blockerUserId, blockedUserId);
+
+        if(!blocked)
+            return res.status(422).json({
+                status : 'error', 
+                msg : 'You cannot unblock a user that is not blocked!'
+            });
+
+        await unblockUser(blockerUserId, blockedUserId);
+
+        res.status(201).json({
+            status : 'success',
+            data : {
+                msg : 'This user is now unblocked!'
+            }
+        });
+      
+
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error',
+            data : {
+                msg : 'A server error has occurred'
+            }
+        });
+    }
+}
+
+/*
+FOLLOW USER CONTROLLER
+POST /api/v1/account/followUser
+--private--
+*/
+
+exports.followUser = async (req,res) => {
+
     const errors = validationResult(req);
 
     if(!errors.isEmpty())
@@ -143,119 +184,79 @@ exports.followUnfollowUser = async (req,res) => {
                 }
             });
 
+    const followerUserId = req.userId;
+    const {userId : followedUserId} = req.body;
+
     try{
-    
-        const checkIfBlockedResult = await checkIfBlocked(req.userId, userToFollowUnfollow);
-    
-        const checkIfBlockedCount = +checkIfBlockedResult[0].count;
-    
-        if(checkIfBlockedCount){
-            if(action === 'unfollow'){
-    
-                return res.status(200).json({
-                    status : 'ok', 
-                    data : {
-                        msg : 'You are not following this user. Note: You are either blocked by or have blocked this user.'
-                    }
-                });
-    
-            }else{
-                return res.status(403).json({
-                    status : 'error', 
-                    data : {
-                        msg : 'You are blocked by this user.'
-                    }
-                });
-            }
-        }
 
-        const userSettingsResults = await fetchUserSettingsById(userToFollowUnfollow);
+        const following = await checkIfFollowExists(followerUserId, followedUserId);
 
-        const {isPrivate} = userSettingsResults[0];
-
-        const followRequestExistsResults = await checkIfFollowRequestExists(userFollowingUnfollowingId, userToFollowUnfollow);
-
-        const count = +followRequestExistsResults[0].count;
-
-        if(isPrivate && action === 'follow'){
-
-            if(count)
-                return res.status(422).json({
-                    status : 'error', 
-                    data : {
-                        msg : 'You have already submitted a follow request!'
-                    }
-                });
-
-            await insertFollowRequest(userFollowingUnfollowingId, userToFollowUnfollow);
-
-            return res.status(201).json({
-                status : 'success', 
+        if(following)
+            return res.status(422).json({
+                status : 'error',
                 data : {
-                    msg : 'Follow request has been sent!'
+                    msg : 'You are already following this user.'
                 }
             });
 
-        }
+        const blocked = await checkIfBlockedReflexive(followerUserId, followerUserId);
 
-        if(count && action === 'unfollow'){
-
-            await removeFollowRequest(userFollowingUnfollowingId, userToFollowUnfollow);
-
-            return res.status(200).json({
-                status : 'success', 
+        if(blocked)
+            return res.status(403).json({
+                status : 'error', 
                 data : {
-                    msg : 'Follow request has been cancelled'
+                    msg : 'You have either blocked this user of have been blocked by this user.'
                 }
             });
 
-        }
+        const requestExists = await checkIfFollowRequestSubmitted(followedUserId, followedUserId);
 
-    
-        const followUnfollowUserResult = await followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollow, action);
+        if(requestExists)
+            return res.status(422).json({
+                status : 'error', 
+                data : {
+                    msg : 'A follow request has already been submitted.'
+                }
+            });
 
-        let statusCode, status, msg; 
+        
+        await insertFollowRequest(followerUserId, followedUserId);
 
-
-        if(followUnfollowUserResult){
-            statusCode = 201;
-            status = 'success';
-            msg = action === 'follow' ? 'Now following user' : 'Now unfollowing user';
-        }else{
-            if(action === 'follow'){
-                statusCode = 422;
-                status = 'error';
-                msg = 'Already following user';
-            }else{
-                statusCode = 200;
-                status = 'ok';
-                msg = 'You are not following this user';
-            }
-        }
-
-        res.status(statusCode).json({
-            status, 
+        res.status(201).json({
+            status : 'success', 
             data : {
-                msg
+                msg : 'A follow request has been sent!'
             }
         });
-
+        
 
     }catch(e){
-
         console.log(e);
         res.status(500).json({
-            status : 'error',
+            status : 'error', 
             data : {
-                msg : 'A server error has occurred'
+                msg : 'A server error has occurred.'
             }
         });
     }
 
 }
 
+/*
+UNFOLLOW USER CONTROLLER
+DELETE /api/v1/account/unfollowUser
+--private--
+*/
 
-exports.approveDisapproveFollowRequest = async (req,res) => {
+exports.unfollowUser = async (req,res) => {
+
+
+
+
+}
+
+
+exports.approveFollowRequest = async (req,res) => {
 
 
 

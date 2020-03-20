@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const tokenIsSet = require('../../middleware/tokenIsSet');
 const accountController = require('../../controllers/generalAccounts/accountController');
+const tokenIsSet = require('../../middleware/tokenIsSet');
 const newPasswordValidation = require('../../middleware/validation/newPasswordValidation');
 const obtainAccountStatus = require('../../middleware/obtainAccountStatus');
 const checkIfUserRemoved = require('../../middleware/checkIfUserRemoved');
@@ -20,17 +20,29 @@ router.post(
     accountController.changePassword);
 
 router.post(
-    '/blockUnblockUser', 
+    '/blockUser', 
+    (req,res,next) => {req.action = 'block'; next();},
     tokenIsSet, 
     generalAccountTypeOnly,
     obtainAccountStatus, 
     checkIfUserRemoved,
     accountIsVerified,
     validateBlockUnblockUser,
-    accountController.blockUnblockUser);
+    accountController.blockUser);
 
 router.post(
-    '/followUnfollowUser', 
+    '/unblockUser', 
+    (req,res,next) => {req.action = 'unblock'; next();},
+    tokenIsSet, 
+    generalAccountTypeOnly,
+    obtainAccountStatus, 
+    checkIfUserRemoved,
+    accountIsVerified,
+    validateBlockUnblockUser,
+    accountController.unblockUser);
+
+router.post(
+    '/followUser', 
     tokenIsSet, 
     generalAccountTypeOnly,
     obtainAccountStatus, 
@@ -38,17 +50,7 @@ router.post(
     checkIfUserFrozen, 
     accountIsVerified,
     validateFollowToggle,
-    accountController.followUnfollowUser);
-
-router.post(
-    '/approveFollowRequest', 
-    tokenIsSet, 
-    generalAccountTypeOnly,
-    obtainAccountStatus,
-    checkIfUserRemoved,
-    checkIfUserFrozen, 
-    accountIsVerified
-);
+    accountController.followUser);
 
 
 module.exports = router;

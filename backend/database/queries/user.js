@@ -114,125 +114,8 @@ const userQueries = {
             throw new Error('Server unable to obtain information from database.');
         }
 
-    },
-    async blockUnblockUser(blockingUserId, blockedUserId, action){
-
-        try{
-
-            const result = await knex.count('*').from('blocked_users').where({
-                blocking_user_id : blockingUserId, 
-                blocked_user_id : blockedUserId
-            }).select();
-
-            if(action === 'block'){
-
-                if(+result[0].count === 0){
-
-                    await knex('blocked_users').insert({
-                        blocking_user_id : blockingUserId, 
-                        blocked_user_id : blockedUserId
-                    });
-
-                    return true;
-
-                }else{
-                    return false;
-                }
-    
-            }else if(action === 'unblock'){
-    
-                if(+result[0].count === 1){
-
-                    await knex('blocked_users').where({
-                        blocking_user_id : blockingUserId, 
-                        blocked_user_id : blockedUserId
-                    }).del();
-
-                    return true;
-
-                }else{
-                    return false;
-                }
-    
-            }
-
-
-        }catch(e){
-            console.log(e);
-            throw new Error('Server failed to block or unblock user.');
-        }
-
     }, 
-    async checkIfBlocked(user1, user2){
-
-        try{
-
-            const result = await knex.count('*').from('blocked_users').where({
-                blocking_user_id : user1, 
-                blocked_user_id : user2
-            }).orWhere({
-                blocking_user_id : user2, 
-                blocked_user_id : user1
-            });
-
-            return result;
-
-        }catch(e){
-            console.log(e);
-            throw new Error('Failed to fetch from database.');
-        }
-
-
-    }, 
-    async followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollowId, action){
-
-        try{
-
-            const result = await knex.count('*').from('followers').where({
-                follower_user_id : userFollowingUnfollowingId, 
-                following_user_id : userToFollowUnfollowId
-            }).select();
-
-            if(action === 'follow'){
-
-                if(+result[0].count === 0){
-
-                    await knex('followers').insert({
-                        follower_user_id : userFollowingUnfollowingId, 
-                        following_user_id : userToFollowUnfollowId
-                    });
-
-                    return true;
-
-                }else{
-                    return false;
-                }
-    
-            }else if(action === 'unfollow'){
-    
-                if(+result[0].count === 1){
-
-                    await knex('followers').where({
-                        follower_user_id : userFollowingUnfollowingId, 
-                        following_user_id : userToFollowUnfollowId
-                    }).del();
-
-                    return true;
-
-                }else{
-                    return false;
-                }
-    
-            }
-
-
-        }catch(e){
-            console.log(e);
-            throw new Error('Server failed to follow or unfollow user.');
-        }
-
-    }, 
-    async UnfollowFromBlock(user1, user2){
+    async UnfollowResultingFromBlock(user1, user2){
 
         try{
 
@@ -266,21 +149,129 @@ const userQueries = {
 
         }
 
-    }, 
-    async checkIfFollowRequestExists(followerUserId, followedUserId){
+    },
+    async checkIfFollowExists(followerUserId, followedUserId){
 
         try{
 
-            const result = await knex.count('*').as('count').from('follow_requests').where({
+            const result = knex.count('*').from('followers')
+            .where({
+                follower_user_id : followedUserId, 
+                followed_user_id : followedUserId
+            }).select();
+
+            if(+result[0].count) return true;
+            else return false;
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Unable to fetch data from database');
+        }
+
+    }, 
+    async unfollow(followerUserId, followedUserId){
+
+        try{
+            
+            await knex('followers').where({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            }).del();
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to unfollow user');
+        }
+
+    }, 
+    async checkIfBlocked(blockerUserId, blockedUserId){
+
+        try{
+
+            const result = await knex.count('*').as('count').from('blocked_users')
+            .where({
+                blocker_user_id : blockerUserId, 
+                blocked_user_id : blockedUserId
+            }).select();
+
+            if(+result[0].count) return true;
+            else return false;
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server is unable to fetch data from database.');
+        }
+
+    }, 
+    async checkIfBlockedReflexive(blockerUserId, blockedUserId){
+
+        try{
+
+            const result = await knex.count('*').as('count').from('blocked_users')
+            .where({
+                blocker_user_id : blockerUserId, 
+                blocked_user_id : blockedUserId
+            }).orWhere({
+                blocker_user_id : blockedUserId, 
+                blocked_user_id : blockerUserId
+            }).select();
+
+            if(+result[0].count) return true;
+            else return false;
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server is unable to fetch data from database.');
+        }
+
+    },
+    async insertBlockedUser(blockerUserId, blockedUserId){
+
+        try{
+
+            await knex('blocked_users').insert({
+                blocker_user_id : blockerUserId, 
+                blocked_user_id : blockedUserId
+            });
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to block user.');
+        }
+    }, 
+    async unblockUser(blockerUserId, blockedUserId){
+
+        try{
+
+            await knex('blocked_users').where({
+                blocker_user_id : blockerUserId, 
+                blocked_user_id : blockedUserId
+            }).del();
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server was unable to unblock user.');
+        }
+
+    }, 
+    async checkIfFollowRequestSubmitted(followerUserId, followedUserId){
+
+        try{
+
+            const result = knex.count('*').as('count').from('follow_requests')
+            .where({
                 follower_user_id : followerUserId, 
                 followed_user_id : followedUserId
             }).select();
 
-            return result;
+            if(+result[0].count) return true;
+            else return false;
 
         }catch(e){
             console.log(e);
-            throw new Error('Server unable to obtain information from database.');
+            throw new Error('Server unable to fetch data.');
         }
 
     }, 
@@ -295,40 +286,7 @@ const userQueries = {
 
         }catch(e){
             console.log(e);
-            throw new Error('Server failed to insert follow request into database.');
-        }
-
-
-    }, 
-    async removeFollowRequest(followerUserId, followedUserId){
-
-        try{
-
-            await knex('follow_requests').where({
-                follower_user_id : followerUserId, 
-                followed_user_id : followedUserId
-            }).del();
-
-        }catch(e){
-            console.log(e);
-            throw new Error('Server failed to remove follow request.');
-        }
-
-
-    }, 
-    async removeFollowRequestsFromBlock(user1, user2){
-
-        try{
-            await knex('follow_requests').where({
-                follower_user_id : user1, 
-                followed_user_id : user2
-            }).orWhere({
-                follower_user_id : user2, 
-                followed_user_id : user1
-            }).del();
-        }catch(e){
-            console.log(e);
-            throw new Error('Server failed to remove follow request.');
+            throw new Error('Server unable to insert follow request into database.');
         }
 
     }

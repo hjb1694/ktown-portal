@@ -35,8 +35,6 @@ const helpers = {
         }, config.jwt_secret, {
             expiresIn : '1 hour'
         });
-        
-
     }
 }
 

@@ -1,8 +1,7 @@
-
 exports.up = function(knex) {
   return knex.schema.createTable('blocked_users', table => {
       table.increments('id');
-      table.integer('blocking_user_id').unsigned().notNullable()
+      table.integer('blocker_user_id').unsigned().notNullable()
       .references('id').inTable('users');
       table.integer('blocked_user_id').unsigned().notNullable()
       .references('id').inTable('users');

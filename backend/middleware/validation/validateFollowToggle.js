@@ -4,8 +4,8 @@ const {
 } = require('../../database/queries/user');
 
 module.exports = [
-    check('userToFollowUnfollow', 'Please enter a valid user ID').isInt(),
-    check('userToFollowUnfollow').custom((value, {req}) => {
+    check('userId', 'Please enter a valid user ID').isInt(),
+    check('userId').custom((value, {req}) => {
 
         if(value == req.userId)
             throw new Error('You cannot follow yourself.');
@@ -13,7 +13,7 @@ module.exports = [
         return true;
 
     }), 
-    check('userToFollowUnfollow').custom(async value => {
+    check('userId').custom(async value => {
 
         if(value){
 
@@ -30,14 +30,5 @@ module.exports = [
             return true;
 
         }
-    }), 
-    check('action').custom(value => {
-
-        const opts = ['follow','unfollow'];
-
-        if(!opts.includes(value))
-            throw new Error('Please provide a valid action.');
-
-        return true;
     })
 ];
