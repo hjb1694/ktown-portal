@@ -250,6 +250,55 @@ const userQueries = {
             throw new Error('Server failed to unfollow users.');
         }
 
+    }, 
+    async fetchUserSettingsById(userId){
+
+        try{
+
+            const result = knex.select('*').from('account_settings').where({userId});
+
+            return result;
+
+        }catch(e){
+
+            console.log(e);
+            throw new Error('Server failed to fetch account settings for user.');
+
+        }
+
+    }, 
+    async checkIfFollowRequestExists(followerUserId, followedUserId){
+
+        try{
+
+            const result = await knex.count('*').as('count').from('follow_requests').where({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            }).select();
+
+            return result;
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to obtain information from database.');
+        }
+
+    }, 
+    async insertFollowRequest(followerUserId, followedUserId){
+
+        try{
+
+            await knex('follow_requests').insert({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            });
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to insert follow request into database.');
+        }
+
+
     }
 }
 

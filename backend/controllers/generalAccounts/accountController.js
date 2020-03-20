@@ -3,7 +3,10 @@ const {
     changePassword,
     blockUnblockUser, 
     followUnfollowUser, 
-    UnfollowFromBlock
+    UnfollowFromBlock, 
+    fetchUserSettingsById, 
+    checkIfFollowRequestExists, 
+    insertFollowRequest
 } = require('../../database/queries/user');
 const bcrypt = require('bcryptjs');
 
@@ -132,43 +135,78 @@ exports.followUnfollowUser = async (req,res) => {
             }
         });
 
-        const userFollowingUnfollowingId = req.userId;
-        const {userToFollowUnfollow, action} = req.body;
-    
-        try{
-    
-            const result = await followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollow, action);
-    
-            let statusCode, status, msg; 
-    
-    
-            if(result){
-                statusCode = 201;
-                status = 'success';
-                msg = action === 'follow' ? 'Now following user' : 'Now unfollowing user';
-            }else{
-                statusCode = 422;
-                status = 'error';
-                msg = action === 'follow' ? 'Already following user' : 'Cannot unfollow a user that has not been followed';
-            }
-    
-            res.status(statusCode).json({
-                status, 
+    const userFollowingUnfollowingId = req.userId;
+    const {userToFollowUnfollow, action} = req.body;
+
+    try{
+
+        let results;
+
+        results = await fetchUserSettingsById(userToFollowUnfollow);
+
+        const {isPrivate} = results[0];
+
+        if(isPrivate && action === 'follow'){
+
+            results = await checkIfFollowRequestExists(userFollowingUnfollowingId, userToFollowUnfollow);
+
+            const {count} = results[0];
+
+            if(count)
+                return res.status(422).json({
+                    status : 'error', 
+                    data : {
+                        msg : 'You have already submitted a follow request!'
+                    }
+                });
+
+            await insertFollowRequest(userFollowingUnfollowingId, userToFollowUnfollow);
+
+            res.status(201).json({
+                status : 'success', 
                 data : {
-                    msg
+                    msg : 'Follow request has been sent!'
                 }
             });
-    
-    
-        }catch(e){
-    
-            console.log(e);
-            res.status(500).json({
-                status : 'error',
-                data : {
-                    msg : 'A server error has occurred'
-                }
-            });
+
         }
+
+    
+        results = await followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollow, action);
+
+        let statusCode, status, msg; 
+
+
+        if(result){
+            statusCode = 201;
+            status = 'success';
+            msg = action === 'follow' ? 'Now following user' : 'Now unfollowing user';
+        }else{
+            statusCode = 422;
+            status = 'error';
+            msg = action === 'follow' ? 'Already following user' : 'Cannot unfollow a user that has not been followed';
+        }
+    
+
+
+
+        res.status(statusCode).json({
+            status, 
+            data : {
+                msg
+            }
+        });
+
+
+    }catch(e){
+
+        console.log(e);
+        res.status(500).json({
+            status : 'error',
+            data : {
+                msg : 'A server error has occurred'
+            }
+        });
+    }
 
 }
