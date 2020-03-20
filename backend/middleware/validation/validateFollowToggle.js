@@ -30,5 +30,14 @@ module.exports = [
             return true;
 
         }
+    }), 
+    check('action').custom(value => {
+
+        const opts = ['follow','unfollow'];
+
+        if(!opts.includes(value))
+            throw new Error('Please provide a valid action.');
+
+        return true;
     })
 ];

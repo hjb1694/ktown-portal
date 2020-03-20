@@ -132,8 +132,41 @@ exports.followUnfollowUser = async (req,res) => {
 
     const userFollowingUnfollowingId = req.userId;
     const {userToFollowUnfollow, action} = req.body;
+    const errors = validationResult(req);
+
+    if(!errors.isEmpty())
+        return res.status(422).json({
+            status : 'error', 
+            data : {
+                errors : errors.array()
+                }
+            });
 
     try{
+    
+        const checkIfBlockedResult = await checkIfBlocked(req.userId, userToFollowUnfollow);
+    
+        const checkIfBlockedCount = +checkIfBlockedResult[0].count;
+    
+        if(checkIfBlockedCount){
+            if(action === 'unfollow'){
+    
+                return res.status(200).json({
+                    status : 'ok', 
+                    data : {
+                        msg : 'You are not following this user. Note: You are either blocked by or have blocked this user.'
+                    }
+                });
+    
+            }else{
+                return res.status(403).json({
+                    status : 'error', 
+                    data : {
+                        msg : 'You are blocked by this user.'
+                    }
+                });
+            }
+        }
 
         const userSettingsResults = await fetchUserSettingsById(userToFollowUnfollow);
 
@@ -188,13 +221,16 @@ exports.followUnfollowUser = async (req,res) => {
             status = 'success';
             msg = action === 'follow' ? 'Now following user' : 'Now unfollowing user';
         }else{
-            statusCode = 422;
-            status = 'error';
-            msg = action === 'follow' ? 'Already following user' : 'Cannot unfollow a user you are not already following';
+            if(action === 'follow'){
+                statusCode = 422;
+                status = 'error';
+                msg = 'Already following user';
+            }else{
+                statusCode = 200;
+                status = 'ok';
+                msg = 'You are not following this user';
+            }
         }
-    
-
-
 
         res.status(statusCode).json({
             status, 
