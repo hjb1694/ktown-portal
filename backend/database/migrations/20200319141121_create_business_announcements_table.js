@@ -8,7 +8,7 @@ exports.up = function(knex) {
       table.text('details');
       table.integer('posting_status').notNullable()
       .references('id').inTable('posting_statuses').defaultsTo(1);
-      table.timestamps();
+      table.timestamps(true,true);
   });
 };
 
