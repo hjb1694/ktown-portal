@@ -6,7 +6,9 @@ const {
     UnfollowFromBlock, 
     fetchUserSettingsById, 
     checkIfFollowRequestExists, 
-    insertFollowRequest
+    insertFollowRequest, 
+    removeFollowRequest, 
+    removeFollowRequestsFromBlock
 } = require('../../database/queries/user');
 const bcrypt = require('bcryptjs');
 
@@ -82,7 +84,10 @@ exports.blockUnblockUser = async (req,res) => {
 
         const result = await blockUnblockUser(blockingUser, blockedUser, action);
 
-        if(action === 'block') await UnfollowFromBlock(blockingUser, blockedUser);
+        if(action === 'block') { 
+            await UnfollowFromBlock(blockingUser, blockedUser); 
+            await removeFollowRequestsFromBlock(blockingUser, blockedUser);
+        }
 
         let statusCode, status, msg; 
 
@@ -125,32 +130,20 @@ POST /api/v1/account/followUnfollowUser
 
 exports.followUnfollowUser = async (req,res) => {
 
-    const errors = validationResult(req);
-
-    if(!errors.isEmpty())
-        return res.status(422).json({
-            status : 'error', 
-            data : {
-                errors : errors.array()
-            }
-        });
-
     const userFollowingUnfollowingId = req.userId;
     const {userToFollowUnfollow, action} = req.body;
 
     try{
 
-        let results;
+        const userSettingsResults = await fetchUserSettingsById(userToFollowUnfollow);
 
-        results = await fetchUserSettingsById(userToFollowUnfollow);
+        const {isPrivate} = userSettingsResults[0];
 
-        const {isPrivate} = results[0];
+        const followRequestExistsResults = await checkIfFollowRequestExists(userFollowingUnfollowingId, userToFollowUnfollow);
+
+        const count = +followRequestExistsResults[0].count;
 
         if(isPrivate && action === 'follow'){
-
-            results = await checkIfFollowRequestExists(userFollowingUnfollowingId, userToFollowUnfollow);
-
-            const {count} = results[0];
 
             if(count)
                 return res.status(422).json({
@@ -162,7 +155,7 @@ exports.followUnfollowUser = async (req,res) => {
 
             await insertFollowRequest(userFollowingUnfollowingId, userToFollowUnfollow);
 
-            res.status(201).json({
+            return res.status(201).json({
                 status : 'success', 
                 data : {
                     msg : 'Follow request has been sent!'
@@ -171,20 +164,33 @@ exports.followUnfollowUser = async (req,res) => {
 
         }
 
+        if(count && action === 'unfollow'){
+
+            await removeFollowRequest(userFollowingUnfollowingId, userToFollowUnfollow);
+
+            return res.status(200).json({
+                status : 'success', 
+                data : {
+                    msg : 'Follow request has been cancelled'
+                }
+            });
+
+        }
+
     
-        results = await followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollow, action);
+        const followUnfollowUserResult = await followUnfollowUser(userFollowingUnfollowingId, userToFollowUnfollow, action);
 
         let statusCode, status, msg; 
 
 
-        if(result){
+        if(followUnfollowUserResult){
             statusCode = 201;
             status = 'success';
             msg = action === 'follow' ? 'Now following user' : 'Now unfollowing user';
         }else{
             statusCode = 422;
             status = 'error';
-            msg = action === 'follow' ? 'Already following user' : 'Cannot unfollow a user that has not been followed';
+            msg = action === 'follow' ? 'Already following user' : 'Cannot unfollow a user you are not already following';
         }
     
 
@@ -208,5 +214,15 @@ exports.followUnfollowUser = async (req,res) => {
             }
         });
     }
+
+}
+
+
+exports.approveDisapproveFollowRequest = async (req,res) => {
+
+
+
+
+
 
 }

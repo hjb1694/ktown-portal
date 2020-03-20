@@ -1,7 +1,6 @@
 const {check} = require('express-validator');
 const {
-    getUserRoleAndAccountStatusById, 
-    checkIfBlocked
+    getUserRoleAndAccountStatusById
 } = require('../../database/queries/user');
 
 module.exports = [
@@ -30,21 +29,6 @@ module.exports = [
 
             return true;
 
-        }
-
-
-    }), 
-    check('userToFollowUnfollow').custom(async (value, {req}) => {
-
-        if(value){
-            const result = await checkIfBlocked(req.userId, value);
-
-            const count = +result[0].count;
-
-            if(count)
-                throw new Error('You have either blocked or are blocked by this user.');
-
-            return true;
         }
     })
 ];

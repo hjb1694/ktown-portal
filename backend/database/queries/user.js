@@ -295,9 +295,41 @@ const userQueries = {
 
         }catch(e){
             console.log(e);
-            throw new Error('Server unable to insert follow request into database.');
+            throw new Error('Server failed to insert follow request into database.');
         }
 
+
+    }, 
+    async removeFollowRequest(followerUserId, followedUserId){
+
+        try{
+
+            await knex('follow_requests').where({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            }).del();
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to remove follow request.');
+        }
+
+
+    }, 
+    async removeFollowRequestsFromBlock(user1, user2){
+
+        try{
+            await knex('follow_requests').where({
+                follower_user_id : user1, 
+                followed_user_id : user2
+            }).orWhere({
+                follower_user_id : user2, 
+                followed_user_id : user1
+            }).del();
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to remove follow request.');
+        }
 
     }
 }
