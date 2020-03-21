@@ -305,6 +305,60 @@ const userQueries = {
             throw new Error('Server unable to remove follow request.');
         }
 
+    }, 
+    async removeFollowRequestReflexive(followerUserId, followedUserId){
+
+        try{
+
+            await knex('follow_requests').where({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            }).orWhere({
+                follower_user_id : followedUserId, 
+                followed_user_id : followerUserId
+            }).del();
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to remove follow requests.');
+        }
+
+    }, 
+    async checkFollowRequestExists(followerUserId, followedUserId){
+
+        try{
+
+            const result = await knex.count('*').as('count').from('follow_requests')
+            .where({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            }).select();
+
+            if(+result[0].count) return true;
+            else return false;
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server failed to obtain data from database.');
+        }
+    },
+    async insertFollow(followerUserId, followedUserId){
+
+        try{
+
+            await knex('followers').insert({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            });
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server was unable to insert follow.');
+        }
+
+
     }
 }
 

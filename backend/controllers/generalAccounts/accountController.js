@@ -9,8 +9,14 @@ const {
     checkIfFollowRequestSubmitted,
     insertFollowRequest, 
     unfollow, 
-    removeFollowRequest
+    removeFollowRequest, 
+    removeFollowRequestReflexive, 
+    checkFollowRequestExists, 
+    insertFollow
 } = require('../../database/queries/user');
+const {
+    insertNotification
+} = require('../../database/queries/notifs');
 const bcrypt = require('bcryptjs');
 
 /*
@@ -94,6 +100,7 @@ exports.blockUser = async (req,res) => {
         
         await insertBlockedUser(blockerUserId, blockedUserId);
         await UnfollowResultingFromBlock(blockerUserId, blockedUserId);
+        await removeFollowRequestReflexive(blockerUserId, blockedUserId);
 
         res.status(201).json({
             status : 'success',
@@ -223,6 +230,10 @@ exports.followUser = async (req,res) => {
 
         
         await insertFollowRequest(followerUserId, followedUserId);
+        await insertNotification(
+            followedUserId, 
+            `${req.username} has requested to follow you!`
+            );
 
         res.status(201).json({
             status : 'success', 
@@ -291,12 +302,51 @@ exports.unfollowUser = async (req,res) => {
 
 }
 
+/*
+APPROVE FOLLOW REQUEST CONTROLLER
+POST /api/v1/account/approveFollowRequest
+--private--
+*/
+
 
 exports.approveFollowRequest = async (req,res) => {
 
+    const {followerUserId} = req.body;
+    const followedUserId = req.userId;
+
+    try{
+
+        const requestExists = await checkFollowRequestExists(followerUserId, followedUserId);
+
+        if(!requestExists)
+            res.status(422).json({
+                status : 'error', 
+                data : {
+                    msg : 'Follow request was rescinded or doesn\'t exist'
+                }
+            });
+
+        await insertFollow(followerUserId, followedUserId);
+        await removeFollowRequest(followerUserId, followedUserId);
+
+        res.status(200).json({
+            status : 'success', 
+            data : {
+                msg : 'You are now followed by this user.'
+            }
+        });
+        
 
 
-
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error', 
+            data : {
+                msg : 'A server error has occurred.'
+            }
+        });
+    }
 
 
 }
