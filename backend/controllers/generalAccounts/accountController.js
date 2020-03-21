@@ -328,6 +328,7 @@ exports.approveFollowRequest = async (req,res) => {
 
         await insertFollow(followerUserId, followedUserId);
         await removeFollowRequest(followerUserId, followedUserId);
+        await insertNotification(followerUserId, `${req.username} has approved your follow request.`);
 
         res.status(200).json({
             status : 'success', 
@@ -347,6 +348,80 @@ exports.approveFollowRequest = async (req,res) => {
             }
         });
     }
+
+
+}
+
+/*
+REJECT FOLLOW REQUEST CONTROLLER
+DELETE /api/v1/account/rejectFollowRequest
+--private--
+*/
+
+exports.rejectFollowRequest = async (req,res) => {
+
+    const {followerUserId} = req.body;
+    const followedUserId = req.userId;
+
+    try{
+
+        await removeFollowRequest(followerUserId, followedUserId);
+
+        res.status(200).json({
+            status : 'ok'
+        });
+
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error', 
+            data : {
+                msg : 'A server error has occurred.'
+            }
+        });
+    }
+
+}
+
+/*
+UPDATE ACCOUNT SETTINGS CONTROLLER
+*/
+
+exports.updateAccountSettings = (req,res) => {
+
+    const acceptedFields = {
+        isPrivate : [true,false], 
+        sendEmailNewMessage : [true,false], 
+        sendEmailOnReplies : [true,false], 
+        allowMentions : [true,false]
+    };
+
+
+    //['isPrivate','sendEmailNewMessage','sendEmailOnReplies','allowMentions']
+    let hasUnnacceptableField = false;
+
+    for(let key in req.body){
+        if(
+            !Object.keys(acceptedFields).includes(key) ||
+            !acceptedFields[key].includes(req.body[key])
+        ){
+            hasUnnacceptableField = true;
+            break;
+        }
+    }
+
+    if(hasUnnacceptableField)
+        return res.status(422).json({
+            status : 'error', 
+            data : {
+                msg : 'Unacceptable field'
+            }
+        });
+
+    res.send('ok');
+
+
 
 
 }

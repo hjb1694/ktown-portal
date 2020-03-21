@@ -4,10 +4,10 @@ exports.up = function(knex) {
     table.increments('id');
     table.bigInteger('userId').unsigned().notNullable()
     .references('id').inTable('users');
-    table.boolean('isPrivate').notNullable().defaultsTo(false);
-    table.boolean('sendEmailNewMessage').notNullable().defaultsTo(true);
-    table.boolean('sendMessageReplies').notNullable().defaultsTo(true);
-    table.boolean('allowMentions').notNullable().defaultsTo(true);
+    table.boolean('is_private').notNullable().defaultsTo(false);
+    table.boolean('send_email_new_message').notNullable().defaultsTo(true);
+    table.boolean('send_email_on_replies').notNullable().defaultsTo(true);
+    table.boolean('allow_mentions').notNullable().defaultsTo(true);
   });
 };
 

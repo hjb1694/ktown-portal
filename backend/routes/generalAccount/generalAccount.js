@@ -74,5 +74,25 @@ router.post(
     accountController.approveFollowRequest
 );
 
+router.delete(
+    '/rejectFollowRequest', 
+    tokenIsSet, 
+    generalAccountTypeOnly, 
+    obtainAccountStatus,
+    checkIfUserRemoved, 
+    checkIfUserFrozen,
+    accountIsVerified,
+    accountController.rejectFollowRequest
+);
+
+router.patch(
+    '/accountSettings', 
+    // tokenIsSet, 
+    // generalAccountTypeOnly, 
+    // obtainAccountStatus, 
+    // checkIfUserRemoved,
+    accountController.updateAccountSettings
+);
+
 
 module.exports = router;
