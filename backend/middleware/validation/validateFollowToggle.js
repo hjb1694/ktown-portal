@@ -8,7 +8,7 @@ module.exports = [
     check('userId').custom((value, {req}) => {
 
         if(value == req.userId)
-            throw new Error('You cannot follow yourself.');
+            throw new Error('You cannot follow or unfollow yourself.');
 
         return true;
 

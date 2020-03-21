@@ -289,6 +289,22 @@ const userQueries = {
             throw new Error('Server unable to insert follow request into database.');
         }
 
+    }, 
+    async removeFollowRequest(followerUserId, followedUserId){
+
+        try{
+
+            await knex('follow_requests').where({
+                follower_user_id : followerUserId, 
+                followed_user_id : followedUserId
+            }).del();
+
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to remove follow request.');
+        }
+
     }
 }
 

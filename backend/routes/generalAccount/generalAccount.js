@@ -52,5 +52,16 @@ router.post(
     validateFollowToggle,
     accountController.followUser);
 
+router.delete(
+    '/unfollowUser', 
+    tokenIsSet,
+    generalAccountTypeOnly,
+    obtainAccountStatus,
+    checkIfUserRemoved,
+    checkIfUserFrozen,
+    accountIsVerified,
+    validateFollowToggle,
+    accountController.unfollowUser);
+
 
 module.exports = router;

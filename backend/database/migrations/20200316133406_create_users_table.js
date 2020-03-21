@@ -3,7 +3,7 @@ exports.up = function(knex) {
     return knex.schema.createTable('users', table => {
       table.increments('id');
       table.string('username', 25).notNullable();
-      table.string('email', 100).notNullable();
+      table.string('email', 100).notNullable().unique();
       table.text('password').notNullable();
       table.date('dob').notNullable();
       table.integer('role',1).unsigned().notNullable()

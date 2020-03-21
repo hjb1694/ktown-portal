@@ -7,7 +7,9 @@ const {
     unblockUser, 
     UnfollowResultingFromBlock, 
     checkIfFollowRequestSubmitted,
-    insertFollowRequest
+    insertFollowRequest, 
+    unfollow, 
+    removeFollowRequest
 } = require('../../database/queries/user');
 const bcrypt = require('bcryptjs');
 
@@ -250,7 +252,41 @@ DELETE /api/v1/account/unfollowUser
 
 exports.unfollowUser = async (req,res) => {
 
+    const errors = validationResult(req);
 
+    if(!errors.isEmpty())
+        return res.status(422).json({
+            status : 'error', 
+            data : {
+                errors : errors.array()
+                }
+            });
+
+    const unfollowerUserId = req.userId;
+    const {userId : unfollowedUserId} = req.body;
+
+
+    try{
+
+        await unfollow(unfollowerUserId, unfollowedUserId);
+        await removeFollowRequest(unfollowerUserId, unfollowedUserId);
+
+        res.json({
+            status : 'ok', 
+            data : {
+                msg : 'If you had a follow request or had followed this user, you no longer.'
+            }
+        });
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error', 
+            data : {
+                msg : 'A server error has occurred.'
+            }
+        });
+    }
 
 
 }
