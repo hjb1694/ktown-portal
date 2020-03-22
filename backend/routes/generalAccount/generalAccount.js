@@ -87,11 +87,20 @@ router.delete(
 
 router.patch(
     '/accountSettings', 
-    // tokenIsSet, 
-    // generalAccountTypeOnly, 
-    // obtainAccountStatus, 
-    // checkIfUserRemoved,
+    tokenIsSet, 
+    generalAccountTypeOnly, 
+    obtainAccountStatus, 
+    checkIfUserRemoved,
     accountController.updateAccountSettings
+);
+
+router.patch(
+    '/deactivateAccount', 
+    tokenIsSet, 
+    generalAccountTypeOnly, 
+    obtainAccountStatus, 
+    checkIfUserRemoved, 
+    accountController.deactivateAccount
 );
 
 

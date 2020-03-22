@@ -33,7 +33,7 @@ module.exports = [
         const count = +result[0].count;
 
         if(count)
-            throw new Error('This username already exists!');
+            throw new Error('This username is already taken!');
 
         return true;
 

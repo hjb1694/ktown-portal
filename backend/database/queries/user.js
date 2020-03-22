@@ -10,7 +10,8 @@ const userQueries = {
     }, 
     async checkIfEmailExists(email){
 
-        const result = await knex.count('*').from('users').where({email});
+        const result = await knex.count('*').from('users')
+        .where({email}).andWhere('account_status','<',4);
 
         return result;
     }, 
@@ -356,6 +357,19 @@ const userQueries = {
         }catch(e){
             console.log(e);
             throw new Error('Server was unable to insert follow.');
+        }
+
+
+    }, 
+    async updateAccountSettings(userId, settings){
+
+        try{
+
+            await knex('account_settings').update(settings).where({userId});
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to update account settings.');
         }
 
 

@@ -12,7 +12,8 @@ const {
     removeFollowRequest, 
     removeFollowRequestReflexive, 
     checkFollowRequestExists, 
-    insertFollow
+    insertFollow, 
+    updateAccountSettings
 } = require('../../database/queries/user');
 const {
     insertNotification
@@ -386,9 +387,11 @@ exports.rejectFollowRequest = async (req,res) => {
 
 /*
 UPDATE ACCOUNT SETTINGS CONTROLLER
+PATCH /api/v1/account/accountSettings
+--private--
 */
 
-exports.updateAccountSettings = (req,res) => {
+exports.updateAccountSettings = async (req,res) => {
 
     const acceptedFields = {
         isPrivate : [true,false], 
@@ -397,8 +400,6 @@ exports.updateAccountSettings = (req,res) => {
         allowMentions : [true,false]
     };
 
-
-    //['isPrivate','sendEmailNewMessage','sendEmailOnReplies','allowMentions']
     let hasUnnacceptableField = false;
 
     for(let key in req.body){
@@ -419,9 +420,74 @@ exports.updateAccountSettings = (req,res) => {
             }
         });
 
-    res.send('ok');
+    try{
 
+        await updateAccountSettings(req.userId, req.body);
 
+        res.status(200).json({
+            status : 'success', 
+            data : {
+                msg : 'Account settings successfully changed!'
+            }
+        });
 
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error', 
+            data : {
+                msg : 'A server error occurred.'
+            }
+        });
+    }
+
+}
+
+/*
+DEACTIVATE ACCOUNT CONTROLLER
+PATCH /api/v1/account/deactivateAccount
+--private--
+*/
+
+exports.deactivateAccount = async (req,res) => {
+
+    const userId = +req.body.userId;
+
+    if(Number.isNaN(userId) || !Number.isInteger(userId))
+        res.status(422).json({
+            status : 'error', 
+            data : {
+                msg : 'Please provide a valid user ID.'
+            }
+        });
+
+    if(userId !== req.userId)
+        res.status(403).json({
+            status : 'error', 
+            data : {
+                msg : 'You cannot perform this action.'
+            }
+        });
+
+    try {
+
+        await changeAccountStatus(userId, 4);
+
+        res.status(200).json({
+            status : 'ok', 
+            data : {
+                msg : 'You account has been successfully deactivated.'
+            }
+        });
+
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            status : 'error', 
+            data : {
+                msg : 'A server error has occurrred.'
+            }
+        });
+    }
 
 }
