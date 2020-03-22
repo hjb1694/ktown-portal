@@ -8,6 +8,7 @@ exports.up = function(knex) {
     table.boolean('send_email_new_message').notNullable().defaultsTo(true);
     table.boolean('send_email_on_replies').notNullable().defaultsTo(true);
     table.boolean('allow_mentions').notNullable().defaultsTo(true);
+    table.boolean('messages_from_followers_only').notNullable().defaultsTo(false);
   });
 };
 

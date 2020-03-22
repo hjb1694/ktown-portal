@@ -89,7 +89,8 @@ const userQueries = {
 
         try{
 
-            const result = await knex.column('account_status AS accountStatus', 'username').from('users').where({id : userId}).select();
+            const result = await knex.column('account_status AS accountStatus', 'username').from('users')
+            .where({id : userId}).select();
 
             return result;
 

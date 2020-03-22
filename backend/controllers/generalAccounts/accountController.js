@@ -456,7 +456,7 @@ exports.deactivateAccount = async (req,res) => {
     const userId = +req.body.userId;
 
     if(Number.isNaN(userId) || !Number.isInteger(userId))
-        res.status(422).json({
+        return res.status(422).json({
             status : 'error', 
             data : {
                 msg : 'Please provide a valid user ID.'
@@ -464,7 +464,7 @@ exports.deactivateAccount = async (req,res) => {
         });
 
     if(userId !== req.userId)
-        res.status(403).json({
+        return res.status(403).json({
             status : 'error', 
             data : {
                 msg : 'You cannot perform this action.'
