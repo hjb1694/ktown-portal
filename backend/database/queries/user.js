@@ -35,7 +35,7 @@ const userQueries = {
         try{
 
         const result = await knex.column('id', 'password', 'isVerified', 'account_status', 'username')
-        .from('users').where({email}).select();
+        .from('users').where({email}).orderBy('id','DESC').limit(1).select();
 
         return result;
 
