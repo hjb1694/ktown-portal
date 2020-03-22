@@ -13,7 +13,9 @@ const {
     removeFollowRequestReflexive, 
     checkFollowRequestExists, 
     insertFollow, 
-    updateAccountSettings
+    updateAccountSettings, 
+    removeFollowRequestsUponAccountDeactivation, 
+    removeFollowsUponAccountDeactivation
 } = require('../../database/queries/user');
 const {
     insertNotification
@@ -472,6 +474,8 @@ exports.deactivateAccount = async (req,res) => {
     try {
 
         await changeAccountStatus(userId, 4);
+        await removeFollowRequestsUponAccountDeactivation(userId);
+        await removeFollowsUponAccountDeactivation(userId);
 
         res.status(200).json({
             status : 'ok', 

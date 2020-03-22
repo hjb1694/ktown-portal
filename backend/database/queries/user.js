@@ -373,6 +373,38 @@ const userQueries = {
         }
 
 
+    }, 
+    async removeFollowsUponAccountDeactivation(userId){
+
+        try{
+
+            await knex('followers').where({
+                follower_user_id : userId
+            }).orWhere({
+                followed_user_id : userId
+            }).del();
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to remove follows.');
+        }
+
+    }, 
+    async removeFollowRequestsUponAccountDeactivation(userId){
+
+        try{
+
+            await knex('follow_requests').where({
+                follower_user_id : userId
+            }).orWhere({
+                followed_user_id : userId
+            }).del();
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to remove follow requests.');
+        }
+
     }
 }
 
