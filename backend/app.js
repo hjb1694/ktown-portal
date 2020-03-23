@@ -15,7 +15,7 @@ app.use('/api/v1/profile', require('./routes/generalAccount/generalAcctProfile')
 app.use('/api/v1/business/auth', require('./routes/businessAccount/businessAcctAuth'));
 app.use('/api/v1/business/profile', require('./routes/businessAccount/businessProfile'));
 //Shared
-app.use('/api/v1/messages');
+app.use('/api/v1/messages', require('./routes/messages'));
 
 
 app.listen(config.port, () => console.log(`Listening on port ${config.port}`));

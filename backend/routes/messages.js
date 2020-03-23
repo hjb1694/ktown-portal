@@ -8,7 +8,7 @@ const accountIsVerified = require('../middleware/accountVerified');
 const validateNewMessage = require('../middleware/validation/validateNewMessage');
 
 
-app.post(
+router.post(
     '/',
     tokenIsSet, 
     obtainAccountStatus,
