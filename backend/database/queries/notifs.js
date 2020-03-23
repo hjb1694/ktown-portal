@@ -15,7 +15,12 @@ const notifsQueries = {
 
             }else if(recipientAcctType === 'business'){
 
-                
+                await knex('biz_notifications').insert({
+                    recipient_acct_id : recipientAcctId, 
+                    title, 
+                    message
+                });
+
             }
 
         }catch(e){
