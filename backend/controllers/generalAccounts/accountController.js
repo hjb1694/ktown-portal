@@ -14,6 +14,7 @@ const {
     checkFollowRequestExists, 
     insertFollow, 
     updateAccountSettings, 
+    changeAccountStatus,
     removeFollowRequestsUponAccountDeactivation, 
     removeFollowsUponAccountDeactivation, 
     checkIfFollowExists
@@ -235,6 +236,7 @@ exports.followUser = async (req,res) => {
         
         await insertFollowRequest(followerUserId, followedUserId);
         await insertNotification(
+            'general',
             followedUserId, 
             `${req.username} has requested to follow you!`
             );
@@ -332,7 +334,7 @@ exports.approveFollowRequest = async (req,res) => {
 
         await insertFollow(followerUserId, followedUserId);
         await removeFollowRequest(followerUserId, followedUserId);
-        await insertNotification(followerUserId, `${req.username} has approved your follow request.`);
+        await insertNotification('general', followerUserId, `${req.username} has approved your follow request.`);
 
         res.status(200).json({
             status : 'success', 

@@ -375,6 +375,21 @@ const userQueries = {
 
 
     }, 
+    async changeAccountStatus(userId, newStatus){
+
+        try{
+
+            await knex('users').update({
+                account_status : newStatus
+            }).where({id : userId});
+
+        }catch(e){
+            console.log(e);
+            throw new Error('Server unable to change account status.');
+        }
+
+
+    },
     async removeFollowsUponAccountDeactivation(userId){
 
         try{

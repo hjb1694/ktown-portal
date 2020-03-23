@@ -1,15 +1,22 @@
 const knex = require('../');
 
 const notifsQueries = {
-    async insertNotification(recipientUserId, title, message = null){
+    async insertNotification(recipientAcctType, recipientAcctId, title, message = null){
 
         try{
+            
+            if(recipientAcctType === 'general'){
 
-            await knex('notifications').insert({
-                recipient_user_id : recipientUserId, 
-                title, 
-                message
-            });
+                await knex('notifications').insert({
+                    recipient_user_id : recipientAcctId, 
+                    title, 
+                    message
+                });
+
+            }else if(recipientAcctType === 'business'){
+
+                
+            }
 
         }catch(e){
             console.log(e);
