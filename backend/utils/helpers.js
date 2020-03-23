@@ -35,6 +35,14 @@ const helpers = {
         }, config.jwt_secret, {
             expiresIn : '1 hour'
         });
+    }, 
+    sanitizeForumPost(content){
+
+        return sanitizer(content, {
+            allowedTags : ['p','br','img','b','strong','i','em','u'], 
+            allowedAttributes : ['src']
+        });
+
     }
 }
 
