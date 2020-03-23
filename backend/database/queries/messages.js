@@ -25,6 +25,24 @@ const messagesQueries = {
 
         }
 
+    }, 
+    async insertMessage({senderAcctType, senderAcctId, recipientAcctType, recipientAcctId, message}){
+
+        try{
+
+            await knex('messages').insert({
+                sender_acct_type : senderAcctType, 
+                sender_acct_id : senderAcctId, 
+                recipient_acct_type : recipientAcctType, 
+                recipient_acct_id : recipientAcctId, 
+                message
+            });
+
+        }catch(e){
+            console.log(e);
+            throw new Error('A server error has occurred.');
+        }
+
     }
 
 

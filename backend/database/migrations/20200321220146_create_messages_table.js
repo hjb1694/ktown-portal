@@ -5,6 +5,7 @@ exports.up = function(knex) {
       table.bigInteger('sender_acct_id').notNullable();
       table.enu('recipient_acct_type',['general','business']).notNullable();
       table.bigInteger('recipient_acct_id').notNullable();
+      table.text('message').notNullable();
       table.timestamps(true,true);
   });
 };

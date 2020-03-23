@@ -1,12 +1,16 @@
 const {validationResult} = require('express-validator');
 const {
-    checkAccountStatus, 
+    checkAccountStatus : checkGeneralAccountStatus, 
     checkIfBlockedReflexive, 
     fetchUserSettingsById, 
     getUserRoleAndAccountStatusById
 } = require('../database/queries/user');
 const {
-    fetchMessageExchangeCount
+    checkAccountStatus : checkBusinessAccountStatus
+} = require('../database/queries/businessUser');
+const {
+    fetchMessageExchangeCount, 
+    insertMessage
 } = require('../database/queries/messages');
 
 
@@ -19,7 +23,7 @@ POST /api/v1/messages/
 exports.sendMessage = async (req,res) => {
 
     // To get to this controller, the account status has already been obtained and it has been 
-    // determined that the sender is not frozen and his/her account exists (has not been suspended or deactivated).
+    // determined that the sender is not frozen and his/her account exists (has not been suspended or deactivated by user).
     // Also, input has already underwent a validation process.
 
     const errors = validationResult(req);
@@ -52,10 +56,10 @@ exports.sendMessage = async (req,res) => {
             // Checking of the recipient of the account type "general" has an existing account. 
             // If the account is deactivated, suspended, or never existed in the first place, then 
             // an error is returned.
-            const stat = await checkAccountStatus(recipientAcctId)[0];
+            const stat = await checkGeneralAccountStatus(recipientAcctId)[0];
 
             if(!stat || stat.accountStatus > 2)
-                return res.status(422).json({
+                return res.status(404).json({
                     status : 'error', 
                     data : {
                         msg : 'This user does not exist or is no longer a registered user.'
@@ -89,6 +93,10 @@ exports.sendMessage = async (req,res) => {
                         messages_from_followers_only : messagesFromFollowersOnly,
                         is_private : isPrivate} = await fetchUserSettingsById({userId : recipientAcctId})[0];
 
+                    // If the sender and recipient has not already exchanged messages, 
+                    // we are checking to see if the recipient's account settings are set to receive 
+                    // messages from followers only. If the recipient's account is set to private, this
+                    // also applies. 
                     if((messagesFromFollowersOnly || isPrivate) && !messagesExchangedCount)
                         return res.status(403).json({
                             status : 'error', 
@@ -99,16 +107,42 @@ exports.sendMessage = async (req,res) => {
                     
                 }
 
+            }else if(senderAcctType === 'business'){
+
+                if(!messagesExchangedCount)
+                    res.status(403).json({
+                        status : 'error', 
+                        data : {
+                            msg : 'The user must initiate a conversation before you can send messages.'
+                        }
+                    });
             }
 
 
-        }else if(accountType === 'business'){
+        }else if(recipientAcctType === 'business'){
 
-            //come back to later
+             // Checking of the recipient of the account type "business" has an existing account. 
+            // If the account is deactivated, suspended, or never existed in the first place, then 
+            // an error is returned.
+            const stat = await checkBusinessAccountStatus(recipientAcctId)[0];
+
+            if(!stat || stat.accountStatus > 2)
+                return res.status(404).json({
+                    status : 'error', 
+                    data : {
+                        msg : 'This user does not exist or is no longer a registered user.'
+                    }
+                });
 
         }
 
-        //Send message
+        await insertMessage({
+            senderAcctType, 
+            senderAcctId,
+            recipientAcctType, 
+            recipientAcctId, 
+            message
+        });
 
     }catch(e){
         console.log(e);
