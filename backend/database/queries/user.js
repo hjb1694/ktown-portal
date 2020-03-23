@@ -156,7 +156,7 @@ const userQueries = {
 
         try{
 
-            const result = knex.count('*').from('followers')
+            const result = await knex.count('*').as('count').from('followers')
             .where({
                 follower_user_id : followedUserId, 
                 followed_user_id : followedUserId
@@ -207,17 +207,17 @@ const userQueries = {
         }
 
     }, 
-    async checkIfBlockedReflexive(blockerUserId, blockedUserId){
+    async checkIfBlockedReflexive(user1, user2){
 
         try{
 
             const result = await knex.count('*').as('count').from('blocked_users')
             .where({
-                blocker_user_id : blockerUserId, 
-                blocked_user_id : blockedUserId
+                blocker_user_id : user1, 
+                blocked_user_id : user2
             }).orWhere({
-                blocker_user_id : blockedUserId, 
-                blocked_user_id : blockerUserId
+                blocker_user_id : user2, 
+                blocked_user_id : user1
             }).select();
 
             if(+result[0].count) return true;
@@ -262,7 +262,7 @@ const userQueries = {
 
         try{
 
-            const result = knex.count('*').as('count').from('follow_requests')
+            const result = await knex.count('*').as('count').from('follow_requests')
             .where({
                 follower_user_id : followerUserId, 
                 followed_user_id : followedUserId

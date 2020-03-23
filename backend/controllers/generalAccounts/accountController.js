@@ -15,7 +15,8 @@ const {
     insertFollow, 
     updateAccountSettings, 
     removeFollowRequestsUponAccountDeactivation, 
-    removeFollowsUponAccountDeactivation
+    removeFollowsUponAccountDeactivation, 
+    checkIfFollowExists
 } = require('../../database/queries/user');
 const {
     insertNotification
@@ -211,7 +212,7 @@ exports.followUser = async (req,res) => {
                 }
             });
 
-        const blocked = await checkIfBlockedReflexive(followerUserId, followerUserId);
+        const blocked = await checkIfBlockedReflexive(followerUserId, followedUserId);
 
         if(blocked)
             return res.status(403).json({
@@ -221,7 +222,7 @@ exports.followUser = async (req,res) => {
                 }
             });
 
-        const requestExists = await checkIfFollowRequestSubmitted(followedUserId, followedUserId);
+        const requestExists = await checkIfFollowRequestSubmitted(followerUserId, followedUserId);
 
         if(requestExists)
             return res.status(422).json({
