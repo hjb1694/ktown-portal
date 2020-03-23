@@ -12,6 +12,7 @@ const {
     fetchMessageExchangeCount, 
     insertMessage
 } = require('../database/queries/messages');
+const {insertNotification} = require('../database/queries/notifs');
 
 
 /*
@@ -143,6 +144,12 @@ exports.sendMessage = async (req,res) => {
             recipientAcctId, 
             message
         });
+
+        await insertNotification(
+            recipientAcctType, 
+            recipientAcctId, 
+            `${req.username} has sent you a message!`
+        );
 
         res.status(201).json({
             status : 'success', 

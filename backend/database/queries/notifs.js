@@ -21,6 +21,8 @@ const notifsQueries = {
                     message
                 });
 
+            }else{
+                throw new Error('Please provide a correct account type.');
             }
 
         }catch(e){
