@@ -12,7 +12,7 @@ const {
     fetchMessageExchangeCount, 
     insertMessage
 } = require('../database/queries/messages');
-const {insertNotification} = require('../database/queries/notifs');
+const {insertNotification : insertGeneralAcctNotification} = require('../database/queries/notifs');
 const messageAbuseProtection = require('../utils/messageAbuseProtection');
 
 
@@ -153,25 +153,20 @@ exports.sendMessage = async (req,res) => {
             message
         });
 
-        await insertNotification(
-            recipientAcctType, 
-            recipientAcctId, 
-            `${req.username} has sent you a message!`
-        );
+        if(recipientAcctType === 'general'){
+            await insertGeneralAcctNotification(
+                recipientAcctType, 
+                recipientAcctId, 
+                `${req.username} has sent you a message!`
+            );
+        }else if(recipientAcctType === 'business'){
 
-        // Only send email if the previous message exchange was not from the sender or
-        // if there were no messages exchanged at all. You don't want to clutter the inbox!
-        if(!lastExchangeSenderId || (lastExchangeSenderId !== senderAcctId)){
+            //come back to later
 
-            if(recipientAcctType === 'general'){
-
-
-            }else if(recipientAcctType === 'business'){
-
-
-            }
 
         }
+
+        //Send Email Process Here --- Come back to later
 
         res.status(201).json({
             status : 'success', 
