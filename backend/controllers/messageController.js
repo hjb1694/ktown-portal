@@ -13,6 +13,7 @@ const {
     insertMessage
 } = require('../database/queries/messages');
 const {insertNotification} = require('../database/queries/notifs');
+const messageAbuseProtection = require('../utils/messageAbuseProtection');
 
 
 /*
@@ -27,7 +28,7 @@ exports.sendMessage = async (req,res) => {
     // determined that the sender is not frozen and his/her account exists (has not been suspended or deactivated by user).
     // Also, input has already underwent a validation process.
 
-    const errors = validationResult(req);
+    let errors = validationResult(req);
 
     if(!errors.isEmpty())
         return res.status(422).json({
@@ -41,7 +42,18 @@ exports.sendMessage = async (req,res) => {
     const senderAcctType = req.accountType;
     const senderAcctId = req.userId;
 
+
     try{
+
+        errors = await messageAbuseProtection(senderAcctType, senderAcctId, recipientAcctType, recipientAcctId);
+
+        if(errors.length)
+            return res.status(403).json({
+                status : 'error', 
+                data : {
+                    errors
+                }
+            });
 
         // Fetching the count of messages exchanged between the sender and recipient.
         const messagesExchangedCount = await fetchMessageExchangeCount({
