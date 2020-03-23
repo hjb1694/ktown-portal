@@ -453,29 +453,11 @@ PATCH /api/v1/account/deactivateAccount
 
 exports.deactivateAccount = async (req,res) => {
 
-    const userId = +req.body.userId;
-
-    if(Number.isNaN(userId) || !Number.isInteger(userId))
-        return res.status(422).json({
-            status : 'error', 
-            data : {
-                msg : 'Please provide a valid user ID.'
-            }
-        });
-
-    if(userId !== req.userId)
-        return res.status(403).json({
-            status : 'error', 
-            data : {
-                msg : 'You cannot perform this action.'
-            }
-        });
-
     try {
 
-        await changeAccountStatus(userId, 4);
-        await removeFollowRequestsUponAccountDeactivation(userId);
-        await removeFollowsUponAccountDeactivation(userId);
+        await changeAccountStatus(req.userId, 4);
+        await removeFollowRequestsUponAccountDeactivation(req.userId);
+        await removeFollowsUponAccountDeactivation(req.userId);
 
         res.status(200).json({
             status : 'ok', 
