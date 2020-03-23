@@ -123,10 +123,10 @@ const userQueries = {
 
             await knex('followers').where({
                 follower_user_id : user1, 
-                following_user_id : user2
+                followed_user_id : user2
             }).orWhere({
                 follower_user_id : user2, 
-                following_user_id : user1
+                followed_user_id : user1
             }).del();
 
 

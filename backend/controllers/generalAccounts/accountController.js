@@ -148,7 +148,7 @@ exports.unblockUser = async (req,res) => {
 
     try{   
         
-        const blocked = await checkIfBlocked(blockerUserId, blockedUserId);
+        const blocked = await checkIfBlocked(unblockerUserId, unblockedUserId);
 
         if(!blocked)
             return res.status(422).json({
@@ -156,7 +156,7 @@ exports.unblockUser = async (req,res) => {
                 msg : 'You cannot unblock a user that is not blocked!'
             });
 
-        await unblockUser(blockerUserId, blockedUserId);
+        await unblockUser(unblockerUserId, unblockedUserId);
 
         res.status(201).json({
             status : 'success',
