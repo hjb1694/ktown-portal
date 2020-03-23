@@ -45,13 +45,16 @@ exports.sendMessage = async (req,res) => {
 
     try{
 
-        errors = await messageAbuseProtection(senderAcctType, senderAcctId, recipientAcctType, recipientAcctId);
+        let {
+            errors : MAPErrors,
+            lastExchangeSenderId
+        } = await messageAbuseProtection(senderAcctType, senderAcctId, recipientAcctType, recipientAcctId);
 
-        if(errors.length)
+        if(MAPErrors.length)
             return res.status(403).json({
                 status : 'error', 
                 data : {
-                    errors
+                    errors : MAPErrors
                 }
             });
 
@@ -162,6 +165,14 @@ exports.sendMessage = async (req,res) => {
             recipientAcctId, 
             `${req.username} has sent you a message!`
         );
+
+        // Only send email if the previous message exchange was not from the sender or
+        // if there were no messages exchanged at all. You don't want to clutter the inbox!
+        if(!lastExchangeSenderId || (lastExchangeSenderId !== senderAcctId)){
+
+            // come back to
+
+        }
 
         res.status(201).json({
             status : 'success', 

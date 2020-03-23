@@ -7,6 +7,7 @@ module.exports = async (senderAcctType, senderAcctId, recipientAcctType, recipie
     try{
 
         let errors = [];
+        let lastExchangeSenderId = null;
 
         const exchanges = await fetchLast3MessageExchanges(
             senderAcctType, 
@@ -25,7 +26,16 @@ module.exports = async (senderAcctType, senderAcctId, recipientAcctType, recipie
 
         }
 
-        return errors;
+        if(exchanges.length){
+
+            lastExchangeSenderId = +exchanges.slice(-1).senderAcctId;
+
+        }
+
+        return {
+            errors, 
+            lastExchangeSenderId
+        };
 
     }catch(e){
         console.log(e);

@@ -59,7 +59,7 @@ const messagesQueries = {
                 sender_acct_id : user2AcctId, 
                 recipient_acct_type : user1AcctType, 
                 recipient_acct_id : user1AcctId
-            }).orderBy('id','DESC').limit(3);
+            }).limit(3);
 
             return result;
 
