@@ -8,6 +8,7 @@ module.exports = async (senderAcctType, senderAcctId, recipientAcctType, recipie
 
         let errors = [];
         let lastExchangeSenderId = null;
+        let previousMessagesHaveBeenExchanged = false;
 
         const exchanges = await fetchLast3MessageExchanges(
             senderAcctType, 
@@ -29,12 +30,14 @@ module.exports = async (senderAcctType, senderAcctId, recipientAcctType, recipie
         if(exchanges.length){
 
             lastExchangeSenderId = +exchanges.slice(-1).senderAcctId;
+            previousMessagesHaveBeenExchanged = true;
 
         }
 
         return {
             errors, 
-            lastExchangeSenderId
+            lastExchangeSenderId, 
+            previousMessagesHaveBeenExchanged
         };
 
     }catch(e){

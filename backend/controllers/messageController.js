@@ -47,7 +47,8 @@ exports.sendMessage = async (req,res) => {
 
         let {
             errors : MAPErrors,
-            lastExchangeSenderId
+            lastExchangeSenderId, 
+            previousMessagesHaveBeenExchanged
         } = await messageAbuseProtection(senderAcctType, senderAcctId, recipientAcctType, recipientAcctId);
 
         if(MAPErrors.length)
@@ -57,14 +58,6 @@ exports.sendMessage = async (req,res) => {
                     errors : MAPErrors
                 }
             });
-
-        // Fetching the count of messages exchanged between the sender and recipient.
-        const messagesExchangedCount = await fetchMessageExchangeCount({
-            user1AcctType : senderAcctType, 
-            user1AcctId : senderAcctId, 
-            user2AcctType : recipientAcctType, 
-            user2AcctId : recipientAcctId
-        });
 
 
         if(recipientAcctType === 'general'){
@@ -113,7 +106,7 @@ exports.sendMessage = async (req,res) => {
                     // we are checking to see if the recipient's account settings are set to receive 
                     // messages from followers only. If the recipient's account is set to private, this
                     // also applies. 
-                    if((messagesFromFollowersOnly || isPrivate) && !messagesExchangedCount)
+                    if((messagesFromFollowersOnly || isPrivate) && !previousMessagesHaveBeenExchanged)
                         return res.status(403).json({
                             status : 'error', 
                             data : {
@@ -125,7 +118,7 @@ exports.sendMessage = async (req,res) => {
 
             }else if(senderAcctType === 'business'){
 
-                if(!messagesExchangedCount)
+                if(!previousMessagesHaveBeenExchanged)
                     res.status(403).json({
                         status : 'error', 
                         data : {
@@ -170,7 +163,13 @@ exports.sendMessage = async (req,res) => {
         // if there were no messages exchanged at all. You don't want to clutter the inbox!
         if(!lastExchangeSenderId || (lastExchangeSenderId !== senderAcctId)){
 
-            // come back to
+            if(recipientAcctType === 'general'){
+
+
+            }else if(recipientAcctType === 'business'){
+
+
+            }
 
         }
 
