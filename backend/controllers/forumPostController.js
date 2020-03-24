@@ -8,6 +8,7 @@ const JSDOM = require('jsdom').JSDOM;
 const base64Img = require('base64-img');
 const toImage = promisify(base64Img.img);
 const uuid = require('uuid').v4;
+const slash = require('slash');
 
 exports.createNewForumPost = async (req,res) => {
 
@@ -30,7 +31,7 @@ exports.createNewForumPost = async (req,res) => {
     errors = [];
     const srcs = [];
 
-    const sanitizedContent = sanitizeForumPost(content);
+    let sanitizedContent = sanitizeForumPost(content);
 
     const {document} = (new JSDOM(sanitizedContent)).window;
 
@@ -66,15 +67,36 @@ exports.createNewForumPost = async (req,res) => {
         });
 
     try{   
-        let mainImagePath;
+        let imagePaths = {
+            image1 : null, 
+            image2 : null
+        };
 
         if(srcs.length){
 
-            mainImagePath = `${Date.now()}-${uuid()}`;
+            let counter = 1;
 
-            await toImage(srcs[0], './public/uploads', mainImagePath);
+            for(let value of srcs){
+
+                let fileName = `${Date.now()}-${uuid()}`;
+
+                fileName = await toImage(value, './public/uploads', fileName);
+
+                fileName = slash(fileName);
+
+                sanitizedContent = sanitizedContent.replace(value, `/${fileName}`);
+
+                imagePaths[`image${counter}`] = `/${fileName}`;
+
+                counter++;
+
+            }
 
         }
+
+        console.log(imagePaths);
+
+        console.log(sanitizedContent);
 
         res.send('Create new forum post controller');
     }catch(e){
