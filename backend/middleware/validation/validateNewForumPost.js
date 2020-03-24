@@ -3,6 +3,7 @@ const {
     sanitizeTextField, 
     sanitizeTextArea
 } = require('../../utils/helpers');
+const {getCategories} = require('../../database/queries/forumPosts');
 
 module.exports = [
     check('headline', 'Please provide a valid headline').isString(), 
@@ -29,6 +30,20 @@ module.exports = [
 
         }
 
+        return true;
+
     }), 
-    check('category', 'Please provide a valid category').isInt()
+    check('category', 'Please provide a valid category ID').isInt(), 
+    check('category').custom(async value => {
+
+        const cats = await getCategories();
+
+        const catIds = cats.map(item => item.id);
+
+        if(!catIds.includes(value))
+            throw new Error('Invalid category ID');
+
+        return true;
+
+    })
 ];

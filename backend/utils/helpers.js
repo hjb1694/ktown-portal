@@ -40,7 +40,12 @@ const helpers = {
 
         return sanitizer(content, {
             allowedTags : ['p','br','img','b','strong','i','em','u'], 
-            allowedAttributes : ['src']
+            allowedAttributes : {
+                'img' : ['src']
+            }, 
+            allowedSchemesByTag : {
+                'img' : ['data']
+            }
         });
 
     }
