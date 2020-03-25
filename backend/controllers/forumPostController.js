@@ -25,7 +25,7 @@ exports.createNewForumPost = async (req,res) => {
     const {
         headline, 
         content, 
-        category
+        category, 
     } = req.body;
 
     errors = [];
@@ -41,7 +41,7 @@ exports.createNewForumPost = async (req,res) => {
     if(imgElems.length > 2)
         errors.push({msg : 'Only up to 2 images are allowed.'});
 
-    if(imgElems.length){
+    if(imgElems.length && imgElems.length <= 2){
 
         for(let i = 0; i < imgElems.length; i++){
 
@@ -54,6 +54,22 @@ exports.createNewForumPost = async (req,res) => {
 
             if(!allIsBase64)
                 errors.push({msg : 'Images must be base64.'});
+
+            const allIsRightSize= srcs.every(item => {
+
+                const splittedString = item.split('base64,');
+
+                const len = splittedString[1].length;
+
+                const approxSizeInBytes = len * (3/4);
+
+                return approxSizeInBytes < 1500000;
+
+
+            });
+
+            if(!allIsRightSize)
+                errors.push({msg : 'One of your images is too large.'});
                     
         }
     }
@@ -108,7 +124,5 @@ exports.createNewForumPost = async (req,res) => {
             }
         });
     }
-
-
 
 }

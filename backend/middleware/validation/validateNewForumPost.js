@@ -40,7 +40,7 @@ module.exports = [
 
         const catIds = cats.map(item => item.id);
 
-        if(!catIds.includes(value))
+        if(!catIds.includes(+value))
             throw new Error('Invalid category ID');
 
         return true;
