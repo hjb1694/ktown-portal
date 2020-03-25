@@ -6,6 +6,7 @@ const checkIfUserFrozen = require('../middleware/checkIfUserFrozen');
 const accountIsVerified = require('../middleware/accountVerified');
 const validateNewForumPost = require('../middleware/validation/validateNewForumPost');
 const forumPostController = require('../controllers/forumPostController');
+const checkIfForumPostLimitReached = require('../middleware/checkIfForumPostLimitReached');
 
 
 const router = require('express').Router();
@@ -19,6 +20,7 @@ router.post(
     checkIfUserRemoved, 
     checkIfUserFrozen, 
     accountIsVerified, 
+    checkIfForumPostLimitReached,
     validateNewForumPost, 
     forumPostController.createNewForumPost
     );

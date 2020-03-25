@@ -7,6 +7,7 @@ exports.up = function(knex) {
       .references('id').inTable('forum_categories');
       table.string('headline').notNullable();
       table.text('content').notNullable();
+      table.string('main_img');
       table.integer('posting_status').notNullable()
       .references('id').inTable('posting_statuses').defaultsTo(1);
       table.timestamps(true,true);
