@@ -10,6 +10,11 @@ const toImage = promisify(base64Img.img);
 const uuid = require('uuid').v4;
 const slash = require('slash');
 
+/*
+CREATE FORUM POST CONTROLLER
+/api/v1/forum/post/
+--private--
+*/
 exports.createNewForumPost = async (req,res) => {
 
     let errors = validationResult(req);
@@ -124,5 +129,19 @@ exports.createNewForumPost = async (req,res) => {
             }
         });
     }
+
+}
+
+
+/* 
+SUBMIT POST LIKE CONTROLLER
+/api/v1/forum/post/likes/
+--private--
+*/
+
+exports.submitPostLike = async (req,res) => {
+
+
+
 
 }

@@ -12,7 +12,7 @@ const router = require('express').Router();
 
 //Create new forum post route
 router.post(
-    '/post',
+    '/',
     tokenIsSet, 
     generalAccountTypeOnly, 
     obtainAccountStatus, 
@@ -22,6 +22,17 @@ router.post(
     validateNewForumPost, 
     forumPostController.createNewForumPost
     );
+
+router.post(
+    '/likes',
+    tokenIsSet, 
+    generalAccountTypeOnly, 
+    obtainAccountStatus,
+    checkIfUserRemoved,
+    checkIfUserFrozen, 
+    accountIsVerified, 
+    forumPostController.submitPostLike
+);
 
 
 module.exports = router;

@@ -13,7 +13,7 @@ app.use(fileupload());
 app.use('/api/v1/auth', require('./routes/generalAccount/generalAcctAuth'));
 app.use('/api/v1/account', require('./routes/generalAccount/generalAccount'));
 app.use('/api/v1/profile', require('./routes/generalAccount/generalAcctProfile'));
-app.use('/api/v1/forum', require('./routes/forumPost'));
+app.use('/api/v1/forum/post', require('./routes/forumPost'));
 //Business Account
 app.use('/api/v1/business/auth', require('./routes/businessAccount/businessAcctAuth'));
 app.use('/api/v1/business/profile', require('./routes/businessAccount/businessProfile'));
